@@ -1,0 +1,72 @@
+What is this Capable of ?<br><br><ol>
+
+<li> this is a specialized web server that will only reply to a single
+url that you Authorize. If anyone tries to probe to see what
+files are available on the server....thier query will be redirected to
+another server of your choice and you will be notified of there attempts
+<br>
+<li> it can serve pictures, html pages and text documents directly
+<br>
+<li> it can redirect browsers connectign to you to any URL you want
+without there browser needing to have its scripting enabled.your
+connection need not be bogged down with having to serve up pictures
+and other data... also you can redirect there request anywhere, which
+means that you could send an intial request for an image and turn it
+into them triggering a cgi script some (nuke me scripts..whatever).
+<br>
+<li> it can Authenticate browsers with custom realm information and then 
+auto redirect them to a given url. Also it should be noted that this
+is designed so that once they have been authorized they will not be 
+again. This is to prevent people from 'figuring out' where the 
+authorization prompt originated from by re-requesting the Url
+<br>
+<li>log IP connections, user agent Info, telnet attempts, system probing,
+as well as decode any responses given to the web authentication challange
+All data is stored in a list view and can be copied directly to the clip
+board. 
+<br>
+<li>if it detects anyone teleneting to it, it will first spam 
+their terminal , disconnect them and notify you
+<br>
+<li>some day this will also support cgi scripting and be able to shell
+out processes to the windows script host,however that day is not now.
+<br>
+<li>how to get the people there....and why to use a long URL as your 
+Authorized URL?<ul>
+   <li>a) give them a link to you or better yet post an image with your URL
+     in it so that there browsers will automatically connect to you 
+     requesting the image.(and umm if you are supposedly sendign an image
+     ti is always wise to make your url look legit and end in an image type
+     extension as well as redirect them to the actual image. IF you do this
+     right...the URL wont raise a thought in even a careful surfers mind)
+     which brings us to the next point....
+   <li>b) why the long URL? why is:
+<br>
+         http://my_ip/mardi-gras/preview/picts/0047.jpg  waaayyy better than  
+         http://my_ip/rookie.jpg                         ?
+<br>
+      how many of us have ftp rights to the root directories...I know alot of
+      dont need this pointed out...but some do...waaaayyyy to often I have seen
+      people not even thinkign about it...dont assume people dont look....cause
+      the ones you dont want to notice you DO LOOK.
+</ul>
+<br>
+<li> I made this out of curosity to see what could be done with some creative http
+headers as well as a nosey identy confirmation tool,whatever you choose to do with
+it is your business. But stealing other peoples logins or nuking or disconnecting
+people from the net is going to get people pissed, and you never know who or what
+is out there....so it is highly unadvised.
+
+<br>
+<li>what can I learn from the programing? <ul>
+   <li> a)Decent function for creating httpheaders on the fly see how they work and
+        what a valid http header request looks like for various functions
+   <li> b)see the creation of several custom objects and how to hold them in an array
+        and create new instances as needed
+   <li>c)winsock programming- see the tcp 3pt handshake in progress, how to load new
+        sockets as they are needed, when and how to manage an array of sockets as
+        you serve up data, 
+   <li> d)get to see a couple very eccentric subs and functions that were turned into
+        "Macgyver" functions as I added on lazily *L*
+</ul></ol>
+    

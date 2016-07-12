@@ -194,6 +194,7 @@ Begin VB.Form frmWinHack
       BorderStyle     =   0  'None
       Height          =   255
       Left            =   900
+      OLEDragMode     =   1  'Automatic
       TabIndex        =   12
       Text            =   "0"
       Top             =   480
@@ -417,7 +418,7 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
 
-Dim Cnt As Long
+Dim cnt As Long
 
 
 
@@ -452,7 +453,7 @@ Private Sub Form_Resize()
     'Me.Height = 3030
 End Sub
 
-Private Sub Form_Unload(Cancel As Integer)
+Private Sub Form_Unload(cancel As Integer)
     On Error Resume Next
     Dim f As Variant
     
@@ -472,7 +473,7 @@ Private Sub Image1_MouseDown(Button As Integer, Shift As Integer, x As Single, y
 End Sub
 
 Private Sub Image1_MouseMove(Button As Integer, Shift As Integer, x As Single, y As Single)
-    Cnt = 0
+    cnt = 0
 End Sub
 
 Private Sub Image1_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
