@@ -2,17 +2,44 @@ VERSION 5.00
 Begin VB.Form Frm_Options 
    BorderStyle     =   4  'Fixed ToolWindow
    Caption         =   "Options"
-   ClientHeight    =   6375
+   ClientHeight    =   7020
    ClientLeft      =   45
    ClientTop       =   285
    ClientWidth     =   8400
    LinkTopic       =   "Options"
    MaxButton       =   0   'False
    MinButton       =   0   'False
-   ScaleHeight     =   6375
+   ScaleHeight     =   7020
    ScaleWidth      =   8400
    ShowInTaskbar   =   0   'False
    StartUpPosition =   3  'Windows Default
+   Begin VB.Frame Frame3 
+      Caption         =   "Get XorKey's"
+      Height          =   855
+      Left            =   120
+      TabIndex        =   54
+      Top             =   6120
+      Width           =   8175
+      Begin VB.TextBox Txt_GetCamoFileName 
+         Alignment       =   1  'Right Justify
+         Appearance      =   0  'Flat
+         Height          =   285
+         Left            =   1680
+         TabIndex        =   56
+         ToolTipText     =   "FileName that is used when you click GetCamo's"
+         Top             =   450
+         Width           =   6255
+      End
+      Begin VB.CommandButton cmd_CamoGet 
+         Caption         =   "GetCamo's"
+         Height          =   375
+         Left            =   120
+         TabIndex        =   55
+         ToolTipText     =   "Click this if Au3-Stub was modifies by AutoIt3Camo - Requires UNPACKED(i.g. No UPX) Data to work!"
+         Top             =   360
+         Width           =   1455
+      End
+   End
    Begin VB.CommandButton cmd_ResetOptions 
       Caption         =   "Reset Options"
       Height          =   375
@@ -75,7 +102,7 @@ Begin VB.Form Frm_Options
          TabIndex        =   18
          Tag             =   "0F479"
          Text            =   "0F479"
-         ToolTipText     =   "DecryptionKey"
+         ToolTipText     =   "0F479"
          Top             =   1920
          Width           =   855
       End
@@ -87,7 +114,7 @@ Begin VB.Form Frm_Options
          TabIndex        =   17
          Tag             =   "0F820"
          Text            =   "0F820"
-         ToolTipText     =   "CompiledPathName is the Path and Filename that was used to compile the script/Fileinstall resource"
+         ToolTipText     =   "0F820 Path and Filename that was used to compile the script/Fileinstall resource"
          Top             =   1920
          Width           =   855
       End
@@ -121,7 +148,7 @@ Begin VB.Form Frm_Options
          TabIndex        =   16
          Tag             =   "B33F"
          Text            =   "B33F"
-         ToolTipText     =   "DecryptionKey"
+         ToolTipText     =   "B33F"
          Top             =   1560
          Width           =   855
       End
@@ -133,7 +160,7 @@ Begin VB.Form Frm_Options
          TabIndex        =   15
          Tag             =   "ADBC"
          Text            =   "ADBC"
-         ToolTipText     =   "The SrcFile_FileInst is normally '>>>AUTOIT SCRIPT<<<' "
+         ToolTipText     =   "ADBC The SrcFile_FileInst is normally '>>>AUTOIT SCRIPT<<<' "
          Top             =   1560
          Width           =   855
       End
@@ -167,7 +194,7 @@ Begin VB.Form Frm_Options
          TabIndex        =   14
          Tag             =   "2477"
          Text            =   "2477"
-         ToolTipText     =   "DecryptionKey"
+         ToolTipText     =   "2477 DecryptionKey"
          Top             =   1200
          Width           =   855
       End
@@ -179,7 +206,6 @@ Begin VB.Form Frm_Options
          TabIndex        =   21
          Tag             =   "22AF"
          Text            =   "22AF"
-         ToolTipText     =   "DecryptionKey"
          Top             =   1200
          Width           =   855
       End
@@ -191,6 +217,7 @@ Begin VB.Form Frm_Options
          TabIndex        =   13
          Tag             =   "99F2"
          Text            =   "99F2"
+         ToolTipText     =   "99F2"
          Top             =   1200
          Width           =   855
       End
@@ -235,7 +262,7 @@ Begin VB.Form Frm_Options
          TabIndex        =   12
          Tag             =   "18EE"
          Text            =   "18EE"
-         ToolTipText     =   "That Box is meant for the FILE-decryptionKey - normally there should be no reason to touch this."
+         ToolTipText     =   "18EE FILE-decryptionKey - normally there should be no reason to touch this."
          Top             =   360
          Width           =   975
       End
@@ -369,6 +396,17 @@ Begin VB.Form Frm_Options
       TabIndex        =   27
       Top             =   4920
       Width           =   8175
+      Begin VB.CheckBox chk_extractIcon 
+         Caption         =   "Extract Icon"
+         Height          =   255
+         Left            =   3480
+         TabIndex        =   57
+         ToolTipText     =   "Deselect if you don't need the icon(*.ico) file; Grey - don't keep Au3-Standard *.ico"
+         Top             =   240
+         UseMaskColor    =   -1  'True
+         Value           =   2  'Grayed
+         Width           =   1215
+      End
       Begin VB.CheckBox chk_disableWinhex 
          Caption         =   "Disable Winhex"
          Height          =   255
@@ -544,6 +582,7 @@ Begin VB.Form Frm_Options
       Left            =   120
       TabIndex        =   49
       Top             =   6000
+      Visible         =   0   'False
       Width           =   4815
    End
    Begin VB.Label Label4 
@@ -571,6 +610,8 @@ Private Const ValidSigStringLen = 16
 Private Const ValidHexStringLen = 8
 
 Const Setting_ExcludeFromLoadSave$ = _
+   "Txt_GetCamoFileName" & " " & _
+   "" & _
    "txt_AU3Sig" & " " & _
    "txt_AU3_Type" & " " & _
    "txt_AU3_SubType" & " " & _
@@ -598,10 +639,25 @@ Private Sub RegRun(verb, ExportFileName, Optional options = "")
    retval = ShellEx(cmd, verb & " " & _
                          Regpath & " " & _
                          ExportFileName & " " & _
-                         options, vbNormalFocus)
+                         options, vbHide) 'vbNormalFocus )
 
 End Sub
 
+
+Private Sub chk_extractIcon_Click()
+   Static value
+   Checkbox_TriStateToggle chk_extractIcon, value
+End Sub
+
+Private Sub cmd_CamoGet_Click()
+   On Error GoTo cmd_CamoGet_Click_err
+   
+   CamoGet
+   
+   Exit Sub
+cmd_CamoGet_Click_err:
+   Log "ERROR: [CamoGet] " & Err.Description
+End Sub
 
 Private Sub cmd_ExportSettings_Click()
    Dim ExportFileName As New ClsFilename
@@ -638,6 +694,8 @@ Private Sub cmd_ResetOptions_Click()
 
 
  ' Restore Defaults
+'   Form_Load
+ 
    Unload Me
    
    Me.Show
@@ -645,14 +703,30 @@ Private Sub cmd_ResetOptions_Click()
 End Sub
 
 
+
+
+Private Sub Form_Activate()
+   Txt_GetCamoFileName = FrmMain.Combo_Filename
+End Sub
+
 Private Sub Form_Load()
 
    FormSettings_Load Me, Setting_ExcludeFromLoadSave
    
    LocaleID = ConfigValue_Load(Me.Name, "LocaleID", LocaleID)
- 
+   
+   
+ ' Ensure Initialisation
+   CommitChanges
 
- ' Ensure Initalisation
+
+End Sub
+
+'!!! Important !!!
+' Call CommitChanges every time you made changes to the form like for ex. this:
+' Frm_Options.txt_AU3Sig.Text = "AU3"
+Public Sub CommitChanges()
+
    Dim dummy As Boolean
    
  ' Script Start

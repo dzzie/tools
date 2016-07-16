@@ -152,7 +152,7 @@ Sub DeToken()
             Dim LastAtom
             If LastAtom = "+" Then
                If Atom <= -1 Then
-                  Log " Tokenoptimisation occured '+-' -> '-'  @line: " & SourceCodeLineCount
+                  log_verbose " Tokenoptimisation occured '+-' -> '-'  @line: " & SourceCodeLineCount
                   Dim tmp$
                   tmp = ArrayGetLast(SourceCodeLine)
                   tmp = Left2(tmp) ' Cut last char

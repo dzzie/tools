@@ -220,6 +220,10 @@ Begin VB.Form FrmMain
          Caption         =   "&HexToBin_Binary() parser"
          Shortcut        =   {F8}
       End
+      Begin VB.Menu mi_CustomDecrypt 
+         Caption         =   "&Custom_Decrypt() parser"
+         Shortcut        =   {F9}
+      End
       Begin VB.Menu mi_GetAutoItVersion 
          Caption         =   "&GetAutoItVersion(Attention this executes the current exe)"
          Shortcut        =   {F7}
@@ -327,6 +331,10 @@ Private ListLogClickEventDisable As Boolean
 
 Private Sub mi_cancel_Click()
    CancelAll = True
+End Sub
+
+Private Sub mi_CustomDecrypt_Click()
+   CustomDecrypt
 End Sub
 
 Private Sub mi_Reload_Click()
@@ -602,7 +610,7 @@ Private Function GetCurLineFromTidyOutput(TextLine As String, MatchKeyWord$) As 
 
 End Function
 Private Sub Console_OnOutput(TextLine As String, ProgramName As String)
- 
+   On Error GoTo Console_OnOutput_err
  ' cut last newline
    Dim NewLinePos&
    NewLinePos = InStrRev(TextLine, vbCrLf)
@@ -627,13 +635,16 @@ Private Sub Console_OnOutput(TextLine As String, ProgramName As String)
    
  ' Log output
    Log Left(TextLine, NewLinePos), ProgramName & ": "
-
+   
+Console_OnOutput_err:
+ Exit Sub
+Log "ERR: " & Err.Description & "in  FrmMain.Console_OnOutput(TextLine , ProgramName )"
 End Sub
 
  ' Show first 100 Lines
 Private Sub ShowScriptPart(ScriptLines, curline&, Optional Lines& = 100)
    Dim ScriptLinesPreview_Start&
-   ScriptLinesPreview_Start = curline
+   ScriptLinesPreview_Start = Min(curline, UBound(ScriptLines))
    
    Dim ScriptLinesPreview_End&
    ScriptLinesPreview_End = Min(curline + Lines, UBound(ScriptLines))
@@ -787,7 +798,7 @@ Private Sub List_Positions_Click()
 '   WH_close
 End Sub
 
-Private Sub List_Positions_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
+Private Sub List_Positions_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
    If Button = MouseButtonConstants.vbRightButton Then
       List_Positions.Visible = False
       lbl_Adjustment.Visible = False
@@ -811,7 +822,9 @@ Private Sub ListLog_Click()
 End Sub
 
 Private Sub ListLog_DblClick()
-   frmLogView.txtlog = FrmMain.Log_GetData
+   frmLogView.txtlog = Replace( _
+                        FrmMain.Log_GetData, _
+                        vbNullChar, ".")
    frmLogView.Show
 End Sub
 
@@ -827,7 +840,7 @@ Private Sub ListLog_KeyUp(KeyCode As Integer, Shift As Integer)
 End Sub
 
 
-Private Sub ListLog_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
+Private Sub ListLog_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
    If Button = MouseButtonConstants.vbRightButton Then
       ListLogClear
    End If
@@ -853,7 +866,7 @@ Private Sub mi_GetAutoItVersion_Click()
    Dim ShellCommandParams$
    ShellCommandParams = " /AutoIt3ExecuteLine ""Exit(999+MsgBox(0x40,'AutoIt version of ' & @ScriptName & ' is', @AutoItVersion,10))"""
    
-   Log "GetAutoItVersion executes: " & Quote(Combo_Filename & " " & ShellCommandParams)
+   Log "GetAutoItVersion executes: " & Quote(Combo_Filename) & " " & ShellCommandParams
    Dim ShellExitCode&
    ShellExitCode = ShellEx(Combo_Filename, ShellCommandParams, vbNormalFocus)
    
@@ -944,8 +957,8 @@ Private Sub HexToBinTool()
    With myRegExp
 
       
-      .Pattern = RE_WSpace(RE_Group("\w*?") & "\(", """0x", _
-                            "[0-9A-Fa-f]" & "*?", """", ".*?", "\)")
+      .Pattern = RE_WSpace(RE_Group("\w*?") & "\(", "[""']0x", _
+                            "[0-9A-Fa-f]" & "*?", "[""']", ".*?", "\)")
       Dim matches As MatchCollection
       Set matches = .Execute(Data)
       Dim FunctionName$
@@ -957,15 +970,22 @@ Private Sub HexToBinTool()
          FunctionName = matches(0).SubMatches(0)
       End If
    
+
       FunctionName = InputBox("FunctionName:", "", FunctionName)
       
 
       
       .Global = True
-      .Pattern = RE_WSpace(RE_Literal(FunctionName) & "\(", """0x", _
-                            RE_Group("[0-9A-Fa-f]" & "*?"), """", _
-                            RE_Group_NonCaptured(RE_WSpace( _
-                            ",", RE_Group("[1-4]")) & "?"), "\)")
+      .Pattern = RE_WSpace(RE_Literal(FunctionName), _
+                            "\(", "[""']0x", _
+                               RE_Group("[0-9A-Fa-f]" & "*?"), _
+                            "[""']", _
+                              RE_Group_NonCaptured( _
+                                 RE_WSpace( _
+                                   ",", _
+                                   RE_Group("[1-4]")) _
+                                 ) & "?", _
+                            "\)")
                             
       Set matches = .Execute(Data)
       Dim Match As Match
@@ -1008,8 +1028,114 @@ Private Sub HexToBinTool()
 
 End Sub
 
-Private Sub Form_Load()
+Private Sub CustomDecrypt()
+
+   Dim FileName As New ClsFilename
+   FileName.FileName = InputBox("Note: The CustomDecrypt only makes sense together with the VB6-IDE !" & vbCrLf & _
+                     "" & vbCrLf & _
+                     "It helps if you encounter stuff like this: 'MsgBox(0, Fn04B6(""dHBKQL LWW~W"", ""FI""),...'" & vbCrLf & _
+                     "" & vbCrLf & _
+                     "FileName:", "Programmers only!", Combo_Filename)
    
+   If FileName.FileName = "" Then Exit Sub
+   
+
+   Dim Data$
+   Data = FileLoad(FileName.FileName)
+
+   
+   
+   Dim myRegExp As New RegExp
+   With myRegExp
+
+      
+      .Pattern = RE_WSpace(RE_Group("\w*?") & "\(", "[""']0x", _
+                            "[0-9A-Fa-f]" & "*?", "[""']", ".*?", "\)")
+      Dim matches As MatchCollection
+      Set matches = .Execute(Data)
+      Dim FunctionName$
+      If matches.Count < 1 Then
+         
+         FunctionName = "FnNameOfBinaryToString"
+      Else
+      
+         FunctionName = matches(0).SubMatches(0)
+      End If
+   
+   
+FunctionName = "_deCode"
+
+      FunctionName = InputBox("FunctionName:", "", FunctionName)
+      
+
+'_deCode("rATNQ7", "BA")
+
+      .Global = True
+      
+      
+    'We'll just care about "doublequoted" Strings
+      Const RE_AU3_QUOTE$ = "[""]"
+      
+      Const RE_AU3_String$ = _
+         RE_AU3_QUOTE & "(" & _
+             "[^""]*?" & _
+         ")" & RE_AU3_QUOTE
+      
+      .Pattern = RE_WSpace(RE_Literal(FunctionName), _
+                            "\(", _
+                              RE_AU3_String$, _
+                              ",", _
+                              RE_AU3_String$, _
+                            "\)")
+                            
+      Set matches = .Execute(Data)
+      Dim Match As Match
+      For Each Match In matches
+         With Match
+         
+            Dim IsPrintable As Boolean
+            Dim BinData$
+            
+
+            BinData$ = CryptCall(.SubMatches(0), .SubMatches(1))
+            BinData = MakeAutoItString(BinData$)
+            
+ '           If IsPrintable Then
+               Log "Replacing: " & BinData & " <= " & .value
+               ReplaceDo Data, .value, EncodeUTF8(BinData), .FirstIndex, 1
+  '          Else
+  '             Log "Skipped replace(not printable): " & MakePrintable(BinData) & " <= " & .value
+  '          End If
+            
+         End With
+      Next
+      
+      
+      
+   End With
+   
+   If matches.Count Then
+      FileName.Name = FileName.Name & "_CustomDecrypt"
+       
+    ' Save
+      FileSave FileName.FileName, Data
+
+       
+       Log matches.Count & " replacements done."
+       Log "File save to: " & FileName.FileName
+   Else
+      Log "Nothing found."
+   End If
+   
+   
+
+End Sub
+
+Private Sub Form_Load()
+
+ '  CamoGet
+
+
  ' Create ConsoleObj
    Set Console = New Console
    
@@ -1313,7 +1439,10 @@ Sub StartProcessing()
      
   On Error Resume Next
   
+  
   Decompile
+  
+  
   If Err = ERR_CANCEL_ALL Then GoTo StartProcessing_err:
   If Err Then
      Log "ERR: " & Err.Description
@@ -1445,15 +1574,15 @@ End Select
 End Function
 
 
-Private Sub Form_OLEDragDrop(Data As DataObject, Effect As Long, Button As Integer, Shift As Integer, x As Single, y As Single)
+Private Sub Form_OLEDragDrop(Data As DataObject, Effect As Long, Button As Integer, Shift As Integer, X As Single, Y As Single)
    File_DragDrop Data
 End Sub
 
-Private Sub List_Source_OLEDragDrop(Data As DataObject, Effect As Long, Button As Integer, Shift As Integer, x As Single, y As Single)
+Private Sub List_Source_OLEDragDrop(Data As DataObject, Effect As Long, Button As Integer, Shift As Integer, X As Single, Y As Single)
    File_DragDrop Data
 End Sub
 
-Private Sub ListLog_OLEDragDrop(Data As DataObject, Effect As Long, Button As Integer, Shift As Integer, x As Single, y As Single)
+Private Sub ListLog_OLEDragDrop(Data As DataObject, Effect As Long, Button As Integer, Shift As Integer, X As Single, Y As Single)
    File_DragDrop Data
 End Sub
 
@@ -1465,11 +1594,11 @@ Private Sub txt_OffAdjust_Change()
    updateStartLocations_List
 End Sub
 
-Private Sub Txt_Script_OLEDragDrop(Data As DataObject, Effect As Long, Button As Integer, Shift As Integer, x As Single, y As Single)
+Private Sub Txt_Script_OLEDragDrop(Data As DataObject, Effect As Long, Button As Integer, Shift As Integer, X As Single, Y As Single)
    File_DragDrop Data
 End Sub
 
-Private Sub Combo_Filename_OLEDragDrop(Data As DataObject, Effect As Long, Button As Integer, Shift As Integer, x As Single, y As Single)
+Private Sub Combo_Filename_OLEDragDrop(Data As DataObject, Effect As Long, Button As Integer, Shift As Integer, X As Single, Y As Single)
    File_DragDrop Data
 End Sub
 

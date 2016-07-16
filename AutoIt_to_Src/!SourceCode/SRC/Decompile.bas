@@ -79,6 +79,7 @@ Dim bIsProbablyOldScript As Boolean
 Dim bIsNewScriptType As Boolean
 
 Dim PEFile_EOF_Offset&
+Dim PEFile_EndOfResourceData_Offset&
 
 Dim ScriptData As StringReader
 
@@ -124,7 +125,7 @@ Sub FL(Text)
 End Sub
 
 Public Sub log2(TextLine$)
-'   log TextLine$
+   Log TextLine$
 End Sub
 
 '/////////////////////////////////////////////////////////
@@ -454,12 +455,14 @@ Private Function TestForV3_0() As Boolean
          ElseIf FrmMain.Chk_verbose.value = vbChecked Then
             Script_CRC_Calculated = Script_CRC_Calculated Xor Script_KEY
             log_verbose "Writing back corrected CRC: " & H32(Script_CRC_Calculated)
-            .Readonly = False
-            .CloseFile
-         
-            .Position = .Length - 4
-            .int32 = Script_CRC_Calculated
-            TestForV3_0 = True
+            If vbYes = MsgBox("Do you like to write back corrected CRC-value to " & .FileName & " ? ", vbYesNo Or vbDefaultButton2, "Testing for AHK/AutoIT3.0 Script") Then
+               .Readonly = False
+               .CloseFile
+            
+               .Position = .Length - 4
+               .int32 = Script_CRC_Calculated
+               TestForV3_0 = True
+            End If
 
          End If
       End If
@@ -865,23 +868,35 @@ Public Sub Decompile()
   'Clear ExtractedFiles
    Set ExtractedFiles = New Collection
    
-   
    With File
     
       Log "Unpacking: " & FileName.FileName
       .Create FileName.FileName, False, False, True
       .Position = 0
       
-
+    ' Chk_NormalSigScan is disabled when Txt_Scriptstart is set
       If Frm_Options.Chk_NormalSigScan.Enabled = False Then
          .Position = HexToInt(FrmMain.Txt_Scriptstart)
          .Move AU3SigSize
      
      'Find start of script and quit this function with runtime error if search fails
-'      ElseIf FrmMain.Chk_NormalSigScan = vbChecked Then
-'         FindStartOfScript
+      'ElseIf Frm_Options.Chk_NormalSigScan = vbChecked Then
+      '   FindStartOfScript
       Else
+         
+         On Error Resume Next
+         
          FindStartOfScript
+         
+         
+         Dim FindStartOfScript_err_Number&
+         FindStartOfScript_err_Number = Err.Number
+         
+         Dim FindStartOfScript_err_Description$
+         FindStartOfScript_err_Description = Err.Description
+
+         On Error GoTo 0
+         
       End If
       
       
@@ -909,30 +924,32 @@ Public Sub Decompile()
          End If
        
       Else
-       Log "      EndOf_PE-ExeFile : " & H32(PEFile_EOF_Offset)
-                   
-      ' ==> Create output fileName
-        Dim IconFileName As New ClsFilename
-        IconFileName = File.FileName      ' initialise with ScriptPath
-        IconFileName.Ext = ".ico"
-        
-        Log "Extracting ExeIcon/s to: " & Quote(IconFileName.FileName)
-        On Error Resume Next
-        ShellEx App.Path & "\" & "data\ExtractIcon.exe", _
-                Quote(File.FileName) & " " & Quote(IconFileName.FileName), vbNormalFocus
-        If Err Then Log "ERROR: " & Err.Description
-        On Error GoTo 0
+         Log "      EndOf_PE-ExeFile : " & H32(PEFile_EOF_Offset)
+         Log "      EndOf_PE-ExeFile_ResourceData : " & H32(PEFile_EndOfResourceData_Offset)
+   
+         
+         HandleIconFile File.FileName
+         
+         
+         Dim isAHK11_Script As Boolean
+         isAHK11_Script = SaveAHK11_Script(FileName)
+      
+         If isAHK11_Script Then
+            ExtractedFiles.Add FileName.FileName
+            Exit Sub
+         End If
+         
+         
+         On Error GoTo 0
 
-'        Dim IconFile As New FileStream
-'        With IconFile
-'         .Create IconFileName.FileName, True, False, False
-'
-'         .FixedString(-1) = HexStringToString("0000010001002020200000000000A808000016000000")
-'
-'         .FixedString(-1) = PE_info.GetFirstIcon
-'         .CloseFile
-'        End With
-        
+  
+      End If
+    
+      If FindStartOfScript_err_Number Then
+          On Error GoTo 0
+          Err.Raise _
+            FindStartOfScript_err_Number, "", _
+            FindStartOfScript_err_Description
       End If
     
     
@@ -1314,10 +1331,18 @@ Processing_Finished:
                  End If
                End If
                
-               IsValidFileName OutFileName.FileName
-               
                ' create Dir if it doesn't exists
                OutFileName.MakePath
+               
+               If IsValidFileName(OutFileName.FileName) = False Then
+                  OutFileName.Name = "FileWithInvalidName_" & H16(FileCount)
+                  
+                  If IsValidFileName(OutFileName.FileName) = False Then
+                     OutFileName = File.FileName
+                     OutFileName.NameWithExt = "FileWithInvalidNameAndPath_" & H16(FileCount)
+                  End If
+                  
+               End If
                
                
              ' Add extracted FileName to global ExtractedFiles List
@@ -1570,15 +1595,20 @@ With ScriptData
 
             Do
                Dim LZSS_Signature_new$
-               LZSS_Signature_new = InputBox("Current value is '" & LZSS_Signature & "'" & vbCrLf & "Valid values are '" & _
+               LZSS_Signature_new = InputBox("Current value is '" & _
+                     LZSS_Signature & "'" & vbCrLf & "Valid values are '" & _
                      "JB01', '" & _
                      AU3_SubTypeStr_old & "' and '" & _
-                     AU3_SubTypeStr & "." & vbCrLf & "Note: If current value looks weird probably decryption fail and so data might be garbage." & vbCrLf & vbCrLf & "Since this is an Auto" & IIf(bIsOldScript, "HotKey", "IT") & " Script the recommanded value is '" & ExpectedSignature & "'" & vbCrLf & vbCrLf & "Press >OK< to change this value or" & vbCrLf & ">Cancel< to keep this it unchanged.", "Compression signature is invalid !", ExpectedSignature)
+                     AU3_SubTypeStr & "." & vbCrLf & "Note: If current value looks weird probably decryption fail and so data might be garbage." & vbCrLf & vbCrLf & "Since this is an Auto" & IIf(bIsOldScript, "HotKey", "IT") & " Script the recommanded value is '" & ExpectedSignature & "'" & vbCrLf & vbCrLf & "Press >OK< to change this value or" & vbCrLf & ">Cancel< to keep this it unchanged.", "Compression signature is invalid !", _
+                     Replace(ExpectedSignature, vbNullChar, "/0"))
+               LZSS_Signature_new = Replace(LZSS_Signature_new, "/0", vbNullChar)
+               
             Loop Until (Len(LZSS_Signature_new) = 4) Or (Len(LZSS_Signature_new) = 0)
             
             If (Len(LZSS_Signature_new) = 4) Then
 '                  If vbYes = MsgBox("Do you want to force it to : " & ExpectedSignature & " so this stream can be decompressed?" & vbCrLf & vbCrLf & "Note: If signature looks weird probably decryption fail and this is of no use", vbYesNo + vbDefaultButton1 + vbExclamation, "LZSS_Signature of decrypted data is '" & LZSS_Signature & "'") Then
                OverWriteSignature LZSS_Signature_new
+               LZSS_Signature = LZSS_Signature_new
             End If
          End If
          
@@ -1905,6 +1935,8 @@ End Function
    
 Private Sub Decompile_HandleAHK_ExtraDecryption(SizeUncompressed&)
              
+   On Error GoTo Decompile_HandleAHK_ExtraDecryption_err
+                
  ' Just look if this is Version 1_0_48_3 or above
    Dim bIsPossiblyAboveAHK_Ver1_0_48_3
    Dim AHKStub As New StringReader
@@ -1967,12 +1999,14 @@ Private Sub Decompile_HandleAHK_ExtraDecryption(SizeUncompressed&)
        
        Dim AHK16_Sub_Key_Heuristic As Long
        ScriptData.Position = 0
-      '"; <COMPILER: v1.0.48.5> " -> "; " -> 3B 20 -> 203B
+      '"; <COMPILER: v1.0.48.5> " ->
+      '"; " -> 3B 20
+      '     -> 203B
        AHK16_Sub_Key_Heuristic = (ScriptData.int16 - &H203B) And &HFFFF
        
        If AHK16_Sub_Key <> AHK16_Sub_Key_Heuristic Then
-         AHK16_Sub_Key = InputBox("The HeuristicAHKSub-Key is " & AHK16_Sub_Key_Heuristic & " and the version depending is " & AHK16_Sub_Key & vbCrLf & _
-                  "Please enter which I should use.", , AHK16_Sub_Key_Heuristic)
+         AHK16_Sub_Key = InputBox("The HeuristicAHKSub-Key is '" & AHK16_Sub_Key_Heuristic & "' and the version depending is '" & AHK16_Sub_Key & "'." & vbCrLf & _
+                  "Please enter which I should use.", , AHK16_Sub_Key)
        End If
 
        
@@ -2033,47 +2067,11 @@ Private Sub Decompile_HandleAHK_ExtraDecryption(SizeUncompressed&)
             
    End If '8/16bit Extra AHK_Sub_Key
 
+Decompile_HandleAHK_ExtraDecryption_err:
 End Sub
    
    
    
-Private Function ADLER32$(Data As StringReader)
-   With Data
-'            Dim a
-            
-            Dim L&, H&
-            H = 0: L = 1
-'            a = GetTickCount
-' taken out for performance reason
-'               .EOS = False
-'               .DisableAutoMove = False
-'               Do Until .EOS
-'                 'The largest prime less than 2^16
-'                  l = (.int8 + l) Mod 65521 '&HFFF1
-'                  H = (H + l) Mod 65521 '&HFFF1
-'                  If (l And 8) Then myDoEvents
-'               Loop
-'
-'            Debug.Print "a: ", GetTickCount - a 'Benchmark: 20203
-
- '           a = GetTickCount
-               
-               Dim StrCharPos&, tmpBuff$
-               tmpBuff = StrConv(.mvardata, vbFromUnicode, LocaleID)
-'               tmpBuff = .mvardata
-               For StrCharPos = 1 To Len(.mvardata)
-                  'The largest prime less than 2^16
-                  L = (AscB(MidB$(tmpBuff, StrCharPos, 1)) + L) Mod 65521 '&HFFF1
-                  H = (H + L) Mod 65521 '&HFFF1
-                  
-                  If 0 = (StrCharPos Mod &H8000) Then myDoEvents
-
-               Next
-'            Debug.Print "b: ", GetTickCount - a 'Benchmark: 5969
-
-      ADLER32 = H16(H) & H16(L)
-   End With
-End Function
 
 Private Function IsValidPEFile() As Boolean
    Dim myPEFile As New PE_info
@@ -2105,6 +2103,11 @@ Private Function IsValidPEFile() As Boolean
                PEFile_EOF_Offset = .PointertoRawData + .RawDataSize
             End With
             
+            PEFile_EndOfResourceData_Offset = .ResourceTableAddress + _
+                                .ResourceTableAddressSize
+            
+            PEFile_EndOfResourceData_Offset = PE_info.RVAToRaw(PEFile_EndOfResourceData_Offset)
+
          End With
       End If
    
@@ -2483,5 +2486,18 @@ End Function
 
 
 Public Function IsValidFileName(FileName$) As Boolean
-   IsValidFileName = True
+Attribute IsValidFileName.VB_Description = "Checks for correct FileName"
+   On Error Resume Next
+   
+   Dim FileAlreadyThere As Boolean
+   FileAlreadyThere = FileExists(FileName)
+   
+   Open FileName For Append As #1
+   IsValidFileName = (Err = 0)
+   Close #1
+   
+   If FileAlreadyThere = False Then
+      Kill FileName
+   End If
+   
 End Function

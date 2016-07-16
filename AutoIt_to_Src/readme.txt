@@ -37,6 +37,13 @@ Tested with:
 The options:
 ===========
 
+'GetCamo's'
+   It'll use RegExp to grab the needed camo vectors from the Au3-exe-stub.
+   ^- Note that this function only works if the target is unpacked. 
+   So if it's packed with Upx or other packer just unpack or dump the Exe from memory(via LordPE or Procdump). 
+   The dump don't need to be runable or contain the script. 
+   Just use the dump file to get the camo vectors and then select the real script file.
+
 'Force Old Script Type'
    Grey means auto detect and is the best in most cases. However if auto detection fails
    or is fooled through modification try to enable/disable this setting
@@ -317,7 +324,25 @@ Some notes to get into ArmaDillo with Olldbg.
              
    use Shift+F9 to jump over exceptions; Ctrl+o [exceptions] 'add'
 
+AutoHotKey
+----------
 
+   MATE supports AutoHotkey till 1.0.48.05 aka "AHK Classic"
+   developed by Chris Mallett (Chris) from 2003 to 2009.
+
+   Beside this there is AutoHotkey 1.1 (aka "AHK_L") maintained by Steve Gray (Lexikos) since 2010
+ 
+   in AHK_L thing got more easier. Just use open the some resource editor or just run 
+   7Zip on the exe. You'll find the script like this: 
+   <AHK-ExeFile>\.rsrc\RCDATA\>AUTOHOTKEY SCRIPT< (<-I just added support for this in MATE 2.12)
+   
+   Incase the file is compressed with UPX, MPRESS, THEMIDA or whatever you must of course
+   unpack or dump the file.
+   
+   Dumping the file with 'Process Hacker' is done by selecting the running file
+   Properties/Memory. Select all Image(Commit) pages ( normally that is at 0x400000)
+   right click on them and select 'Save' to dump the uncompressed data to disk.
+ 
 AutoIt3Camo
 -----------
 
@@ -649,6 +674,9 @@ History
      Bugfix in 'FindScriptStart'
      improved Winhex support
      Updated tidy
+     implemented 'seperate includefiles' for AHK-File
+     added function "GetCamo's"
+	 Support for new AHK_L Files
 
 2.11 Added OptionsDialog
      added Winhex to better check, whats going on at offsets.
