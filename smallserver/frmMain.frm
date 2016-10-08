@@ -29,6 +29,14 @@ Begin VB.Form frmMain
       TabIndex        =   2
       Top             =   2265
       Width           =   6915
+      Begin VB.TextBox txtPort 
+         Height          =   285
+         Left            =   480
+         TabIndex        =   15
+         Text            =   "80"
+         Top             =   240
+         Width           =   735
+      End
       Begin VB.TextBox txtConfig 
          Height          =   315
          Index           =   2
@@ -42,11 +50,11 @@ Begin VB.Form frmMain
       Begin VB.TextBox txtConfig 
          Height          =   285
          Index           =   0
-         Left            =   1680
+         Left            =   3000
          TabIndex        =   7
          Text            =   "http://www.geocities.com/"
          Top             =   240
-         Width           =   4215
+         Width           =   2895
       End
       Begin VB.TextBox txtConfig 
          BackColor       =   &H00FFFFFF&
@@ -101,6 +109,14 @@ Begin VB.Form frmMain
             Width           =   735
          End
       End
+      Begin VB.Label Label2 
+         Caption         =   "Port"
+         Height          =   255
+         Left            =   120
+         TabIndex        =   16
+         Top             =   240
+         Width           =   375
+      End
       Begin VB.Label Label1 
          Caption         =   "Serve File :"
          Height          =   255
@@ -115,9 +131,9 @@ Begin VB.Form frmMain
          Caption         =   "Redirect Probes to :"
          Height          =   195
          Index           =   0
-         Left            =   120
+         Left            =   1560
          TabIndex        =   10
-         Top             =   300
+         Top             =   240
          Width           =   1410
       End
       Begin VB.Label Label1 
@@ -343,7 +359,7 @@ End Sub
 Private Sub sckServer_DataArrival(index As Integer, ByVal bytesTotal As Long)
 With sckServer(index)
   Dim h As HTTPRequest
-
+On Error Resume Next
   .GetData strdata, vbString
   h = Globals.ParseRequest(strdata, .RemoteHostIP)
     
@@ -489,7 +505,7 @@ End Sub
 
 Private Sub logit(who, Optional it = "", Optional dat = "")
       If Not fso.FileExists(cfg.LogFile) Then fso.CreateFile (cfg.LogFile)
-      nfo = "[ " & who & " ]   " & it & vbCrLf & dat & vbCrLf & vbCrLf
+      nfo = "[ " & who & " - " & Now & " ]   " & it & vbCrLf & dat & vbCrLf & vbCrLf
       fso.AppendFile cfg.LogFile, nfo
 End Sub
 
@@ -511,10 +527,10 @@ Sub startup()
   Call resetScript
   
   sckListen.Close
-  sckListen.LocalPort = 80
+  sckListen.LocalPort = CLng(txtPort)
   sckListen.Listen
   sckServer(0).Close
-  Me.Caption = "Small Server -- Online"
+  Me.Caption = "Small Server -- Online Port: " & sckListen.LocalPort
   
   Script.path = txtConfig(2)
   Script.data = ReadFile(Script.path)

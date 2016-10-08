@@ -1,7 +1,7 @@
-FEnumResources = 0, 0, 0, 0, C, 22, 22, 974, 691, C
-MEnumResources = 0, 0, 0, 0, C
-MApiErrMsg = 0, 0, 0, 0, C
-IEnumResources = 0, 0, 0, 0, C
+FEnumResources = 66, 66, 1018, 735, , 22, 22, 974, 691, C
+MEnumResources = 154, 154, 1106, 823, 
+MApiErrMsg = 176, 176, 1128, 845, 
+IEnumResources = 88, 88, 1040, 757, 
 FShowResource = 0, 0, 0, 0, C, 44, 44, 996, 713, C
-MTransBlt = 0, 0, 0, 0, C
-CPictureDC = 0, 0, 0, 0, C
+MTransBlt = 132, 132, 1084, 801, 
+CPictureDC = 110, 110, 1062, 779, 

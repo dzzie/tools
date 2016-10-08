@@ -166,7 +166,8 @@ Private Sub Form_Load()
   vals = "Extension Rename,Merge Files,Directory Listing,Html Index," & _
        "Remove Scripting,Remove HTML,Unzip,Zip,Set Hidden,Unset Hidden," & _
        "Set ReadOnly,Unset ReadOnly,Img Src Index,Sequential Rename," & _
-       "Unix -> Dos,Dos -> Unix,Batch Replace,Prefix FileName"
+       "Unix -> Dos,Dos -> Unix,Batch Replace,Prefix FileName,Strip Filename"
+       
   s = Split(vals, ",")
   For i = 0 To UBound(s)
     Combo1.AddItem s(i), i
@@ -196,7 +197,7 @@ Private Sub Command1_Click()
  'On Error GoTo warn
    If Text1 = Empty Then MsgBox "You must drag and drop the files or folders you want to work with in the large white box :)": Exit Sub
    Select Case Selopt
-      Case 6, 7, 13, 17, 16: Call Prompt
+      Case 6, 7, 13, 17, 16, 18: Call Prompt
    End Select
    Call Vdate(Selopt) 'reads in extension options
    
@@ -259,6 +260,7 @@ Private Sub Prompt()
     Case 13: msg = "If you would like a character appended..enter it below."
     Case 17: msg = "Enter string to prepend to filename."
     Case 16: msg = "replace 'this'->'that' no quotes"
+    Case 18: msg = "Enter string to strip from filename."
   End Select
   
   Select Case Selopt
@@ -266,7 +268,7 @@ Private Sub Prompt()
         ans = MsgBox(msg, vbYesNo)
         If ans = vbYes Then Together = True _
           Else: Together = False
-    Case 13, 17
+    Case 13, 17, 18
         Seq.count = 0
         Seq.Appnd = InputBox(msg)
     Case 16

@@ -65,6 +65,7 @@ Public Sub ListEngine(folderpath)
                Case 15: Call dos2Unix(f)
                Case 16: Call batchReplace(f)
                Case 17: Call PrefixFiles(f)
+               Case 18: Call StripFileNames(f)
            End Select
       End If
     Next
@@ -75,7 +76,12 @@ Private Sub batchRename(arg As String)
    If arg = Empty Then Exit Sub
    fso.Rename arg, fso.GetBaseName(arg) & opt.renameTo
 End Sub
-  
+
+Private Sub StripFileNames(arg As String)
+   If arg = Empty Then Exit Sub
+   fso.Rename arg, Replace(fso.FileNameFromPath(arg), Seq.Appnd, Empty, , , vbTextCompare)
+End Sub
+
 Private Sub folderJoin(arg As String)
    If InStr(1, arg, "JOINED.txt") > 0 Then Exit Sub
    Dim txt As String
