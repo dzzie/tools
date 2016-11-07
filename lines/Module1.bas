@@ -16,7 +16,7 @@ Sub Main()
     cmd = Trim(cmd)
     
     If FileExists(cmd) Then
-        tmp = countOccurances(cmd, vbLf)
+        tmp = countOccurances(ReadFile(cmd), vbLf)
         msg = "File"
     Else
         tmp = countOccurances(Clipboard.GetText, vbLf)
