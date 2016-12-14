@@ -71,7 +71,7 @@ End Enum
 Private Declare Function SetFilePointer Lib "kernel32" (ByVal hFile As Long, ByVal lDistanceToMove As Long, lpDistanceToMoveHigh As Long, ByVal dwMoveMethod As Long) As Long
 Private Declare Function SetEndOfFile Lib "kernel32" (ByVal hFile As Long) As Long
 
-Private Retval As Long
+Private retval As Long
 Private bytesRead As Long
 Private Declare Function DeleteFile Lib "kernel32" Alias "DeleteFileA" (ByVal lpFileName As String) As Long
 Private Declare Function GetFileSize Lib "kernel32" (ByVal hFile As Long, lpFileSizeHigh As Long) As Long
@@ -131,16 +131,19 @@ End Sub
 'End Property
 
 Public Property Get FixedStringW(ByVal Length As Long) As String
-   If Length = -1 Then
+   If Length = -1 Then _
       Length = (Me.Length - Me.Position)
-   End If
+
+   Length = Length + Length '*2
+   
  
  ' create Buffer
    FixedStringW = Space(Length)
    
  ' Read Fixed String
-   Retval = ReadFilePtr(hFile, StrPtr(FixedStringW), Length * 2, bytesRead, 0)
-   If Retval < 0 Then Err.Raise vbObjectError, , "ReadFileString failed."
+   retval = ReadFilePtr(hFile, StrPtr(FixedStringW), Length, bytesRead, 0)
+   
+   If retval < 0 Then Err.Raise vbObjectError, , "ReadFileString failed."
 End Property
 
 
@@ -212,8 +215,8 @@ Public Property Get FixedString(ByVal Length As Long) As String
    FixedString = Space(Length)
    
  ' Read Fixed String
-   Retval = ReadFile(hFile, FixedString, Length, bytesRead, 0)
-   If Retval < 0 Then Err.Raise vbObjectError, , "ReadFileString failed."
+   retval = ReadFile(hFile, FixedString, Length, bytesRead, 0)
+   If retval < 0 Then Err.Raise vbObjectError, , "ReadFileString failed."
    
  ' Limit buffer incase the file is smaller
    FixedString = Left(FixedString, bytesRead)
@@ -245,10 +248,13 @@ Public Sub FindBytes(ParamArray Bytes())
    End With
 End Sub
 
-Public Function FindString&(StringToFind$, Optional SearchBackwards As Boolean = False, Optional VbCompareMethod As VbCompareMethod = vbBinaryCompare)
+Public Function FindString&(StringToFind$, _
+   Optional SearchBackwards As Boolean = False, _
+   Optional VbCompareMethod As VbCompareMethod = vbBinaryCompare, _
+   Optional searchRange& = -1)
    Dim tmp$, oldPos&
    oldPos = Position
-      tmp = FixedString(-1)
+      tmp = FixedString(searchRange)
       
       If SearchBackwards Then
          FindString = InStrRev(tmp, StringToFind, , VbCompareMethod) - 1
@@ -287,14 +293,14 @@ Public Function FindStrings(StringToFind$, Optional StopIfMoreThan& = &H7FFFFFFF
    Position = 0
    tmp = FixedString(-1)
    
-   Dim Offset&, item
-   Offset = 0
+   Dim offset&, item
+   offset = 0
    For Each item In Split(tmp, StringToFind, StopIfMoreThan)
       
-      Inc Offset, Len(item)
-      FindStrings.Add Offset
+      Inc offset, Len(item)
+      FindStrings.Add offset
       
-      Inc Offset, Len(StringToFind)
+      Inc offset, Len(StringToFind)
    Next
    FindStrings.Remove FindStrings.Count
    
@@ -447,11 +453,11 @@ End Property
 
 
 Public Property Let int32(ByRef vData As Long)
-    Dim Retval&
+    Dim retval&
     Dim bytesWritten&
     Dim tmp$
     tmp = LngtoStr(vData)
-    Retval = WriteFile(hFile, tmp, 4, bytesWritten, 0)
+    retval = WriteFile(hFile, tmp, 4, bytesWritten, 0)
     If bytesWritten <> 4 Then
       Err.Raise vbObjectError, "", "Let_int32: WriteFile failed! Readonly=" & CBool(vbReadOnly)
     End If
@@ -466,9 +472,9 @@ Public Property Get int32() As Long
 '    bytesRead = ReadFileLong(hFile, value, 4, bytesRead, 0)
 '    int32 = value
 
-  Dim Retval&, bytesRead&
-  Retval = ReadFileLong(hFile, int32, 4, bytesRead, 0)
-  If bytesRead <> 4 Then MsgBox "[File::int32] Only '" & bytesRead & "' bytes read instead of 4! RetVal: " & Retval, vbCritical
+  Dim retval&, bytesRead&
+  retval = ReadFileLong(hFile, int32, 4, bytesRead, 0)
+  If bytesRead <> 4 Then MsgBox "[File::int32] Only '" & bytesRead & "' bytes read instead of 4! RetVal: " & retval, vbCritical
 End Property
 
 
@@ -557,15 +563,15 @@ Public Property Let PositionEOFRelated(ByVal vData As Long)
 End Property
 
 
-Private Sub SeekToPosition(Offset&, SeekType As SeekType)
+Private Sub SeekToPosition(offset&, SeekType As SeekType)
    
-   Dim Retval&
-   Retval = SetFilePointer(hFile, Offset, 0, SeekType)
-   If Retval < 0 Then
+   Dim retval&
+   retval = SetFilePointer(hFile, offset, 0, SeekType)
+   If retval < 0 Then
 '      MsgBox "Error on SetFilePointer, FilePointer is before beginning: " & Offset, vbCritical
 '      Me.Position = 0
    Else
-      mvarMaxPosition = Max(mvarMaxPosition, Retval)
+      mvarMaxPosition = Max(mvarMaxPosition, retval)
    End If
 End Sub
 
@@ -661,7 +667,7 @@ Public Property Get int8() As Long '(Offset&, lenght&)
     Dim bytesRead&
     Dim tmp$
     tmp = " "
-    Retval = ReadFile(hFile, tmp, 1, bytesRead, 0)
+    retval = ReadFile(hFile, tmp, 1, bytesRead, 0)
     int8 = Asc(tmp)
 End Property
 
@@ -669,7 +675,7 @@ End Property
 
 '////////////////////////////////////////
 '//  Create
-Public Sub Create(FileName As String, Optional bDeleteExistingFile As Boolean, Optional bTemporaryFile As Boolean, Optional Readonly As Boolean)
+Public Sub create(FileName As String, Optional bDeleteExistingFile As Boolean, Optional bTemporaryFile As Boolean, Optional Readonly As Boolean)
    CloseFile
    Me.FileName = FileName
    Me.Readonly = Readonly

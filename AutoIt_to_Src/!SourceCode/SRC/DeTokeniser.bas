@@ -16,6 +16,8 @@ Dim bAddWhiteSpace As Boolean
 
 Sub DeToken()
    
+   FrmMain.Log_Stage "AutoIT DeTokise", 2
+   
    Dim bVerbose As Boolean
    
    bVerbose = FrmMain.Chk_verbose.value = vbGrayed
@@ -41,16 +43,11 @@ Sub DeToken()
       DecimalKomma = Split(Int64_TestValue, "1234")(1)
       
       
-      .Create FileName.FileName, False, False, True
+      .create FileName.FileName, False, False, True
       If .Length < 4 Then
          Err.Raise NO_AUT_DE_TOKEN_FILE, , "STOPPED!!! File must be at least 4 bytes"
       End If
-'   .CloseFile
-'   End With
-   
-'   With New StringReader
-'      .Data = FileLoad(FileName.FileName)
-   
+
       
    On Error GoTo DeToken_Err
       .Position = 0
@@ -69,8 +66,20 @@ Sub DeToken()
          Err.Raise NO_AUT_DE_TOKEN_FILE, , "This seem to be no Au3-TokenFile."
       End If
       
+'' Read whole File into some memorystream since this
+'' The Stringstreamer (Benchmark: ~17k) is faster than
+'  the Filestream     (Benchmark: ~31k)
+   End With
+
+   With New StringReader
+      .Data = File.FixedString(-1)
       
-            
+      File.CloseFile
+
+      .Position = 0
+'-----------
+      
+      
       
       FrmMain.List_Source.Clear
       FrmMain.List_Source.Visible = True
@@ -112,6 +121,10 @@ Sub DeToken()
          If (SourceCodeLineCount > Lines) Then
             Exit Do
          End If
+         
+'         If .EOS Then
+'            Exit Do
+'         End If
          
          
        ' Default
@@ -190,6 +203,7 @@ Sub DeToken()
             TypeName = "64Bit-float"
             FL_verbose TypeName & ": " & Double_
          
+            'Mostly &h20
             Debug.Assert cmd = &H20
          
 
@@ -314,7 +328,7 @@ Sub DeToken()
  '           log String(40, "_")
          
 '------- Operators -----------
-         Case &H40 To &H56
+         Case &H40 To &H58
 '            Atom = Choose((Cmd - &H40 + 1), ",", "=", ">", "<", "<>", ">=", "<=", "(", ")", "+", "-", "/", "", "&", "[", "]", "==", "^", "+=", "-=", "/=", "*=", "&=")
          '                     Au3Manual AcciChar
             
@@ -342,6 +356,10 @@ Sub DeToken()
                Case &H54: Atom = "/=" '5       2F
                Case &H55: Atom = "*=" '4       2A
                Case &H56: Atom = "&=" '6       26
+               Case &H57: Atom = "?" '6       26
+               Case &H58: Atom = ":" '6       26
+               
+               
             End Select
             TypeName = "operator"
             FL_verbose """" & Atom & """   Type: " & TypeName
@@ -379,7 +397,8 @@ Sub DeToken()
             
           ' del SourceCodeLine
             ArrayDelete SourceCodeLine
-            If bVerbose Then Frm_SrcEdit.LineBreak
+            If bVerbose Then _
+               Frm_SrcEdit.LineBreak
            
           ' Reset AddWhiteSpace on next item
             bWasLastAnOperator = True
@@ -389,7 +408,8 @@ Sub DeToken()
          Case Else
             
            'Unknown Token
-            Log "Unknown Token_Command: 0x" & H8(cmd) & " @ " & H32(TokenOffset)
+            Log H32(TokenOffset) & " @ " & FileName.NameWithExt & " -> Unknown Token_Command: 0x" & H8(cmd)
+            
             If HandleTokenErr("ERROR: Unknown Token") Then
             Else
                Err.Raise NO_AUT_DE_TOKEN_FILE, , "Unknown Token"
@@ -415,12 +435,16 @@ Sub DeToken()
              
              ' Add with whitespace
                ArrayAdd SourceCodeLine, Atom
-               If bVerbose Then Frm_SrcEdit.AddItem whiteSpaceTerminal & Atom, cmd, TypeName, TokenInfo & " @ 0x" & H32(TokenOffset)
+               If bVerbose Then Frm_SrcEdit.AddItem _
+                  whiteSpaceTerminal & Atom, cmd, TypeName, _
+                  TokenInfo & " @ 0x" & H32(TokenOffset)
             Else
               'Append to Last
                
                ArrayAppendLast SourceCodeLine, Atom
-               If bVerbose Then Frm_SrcEdit.AddItem Atom, cmd, TypeName, TokenInfo & " @ 0x" & H32(TokenOffset)
+               If bVerbose Then Frm_SrcEdit.AddItem _
+                  Atom, cmd, TypeName, _
+                  TokenInfo & " @ 0x" & H32(TokenOffset)
 
             End If
             DoEventsVerySeldom
@@ -448,15 +472,15 @@ Select Case Err
      Dim ErrSourceCodeLine$
      ErrSourceCodeLine = Join(SourceCodeLine, whiteSpaceTerminal)
      
-     Dim ErrText$
-     ErrText = "ERROR: " & Err.Description & vbCrLf & _
+     Dim errtext$
+     errtext = "ERROR: " & Err.Description & vbCrLf & _
       "FileOffset: " & H32(.Position) & vbCrLf & _
       " when de-tokenising script line: " & SourceCodeLineCount & vbCrLf & ErrSourceCodeLine
-     Log ErrText
-     MsgBox ErrText, vbCritical, "Unexpected Error during detokenising"
+     Log errtext
+     MsgBox errtext, vbCritical, "Unexpected Error during detokenising"
      
     'Set incomplete SourceCodeLine
-     SourceCode(SourceCodeLineCount) = ErrSourceCodeLine & " <- " & ErrText
+     SourceCode(SourceCodeLineCount) = ErrSourceCodeLine & " <- " & errtext
      Inc SourceCodeLineCount
 
     'Cut down SourceCodeArray to Error
@@ -473,7 +497,7 @@ End Select
 
 
 DeToken_Finally:
-   File.CloseFile
+'   File.CloseFile
   End With
     
 ' ProgressBar Finish
@@ -510,11 +534,11 @@ DeToken_Finally:
 
 End Sub
 
-Private Function HandleTokenErr(ErrText$) As Boolean
+Private Function HandleTokenErr(errtext$) As Boolean
 
    With File
    
-      If vbYes = MsgBox("An Token error occured - possible due to corrupted scriptdata. Contiune?", vbCritical + vbYesNo, ErrText) Then
+      If vbYes = MsgBox("An Token error occured - possible due to corrupted scriptdata. Contiune?", vbCritical + vbYesNo, errtext) Then
          HandleTokenErr = True
          
 '         Dim Hexdata As New clsStrCat, HexdataLine&

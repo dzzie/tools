@@ -651,7 +651,7 @@ Version 3_1
    Script_Start_Offset     size 0x4 Byte                       [XorKey=0xAAAAAAAA]
    Script_ADLER32_CRC      size 0x4 Byte                       [XorKey=0xAAAAAAAA]
 
-   Compare Script_ADLER32_CRC with Calulated one from dataScript_Start_Offset to Script_End_Offset.
+   Compare Script_ADLER32_CRC with Calculated one from dataScript_Start_Offset to Script_End_Offset.
    Seek to Script_Start_Offset and read
    RandomFillData_len      size 0x4 Byte                       [XorKey=0xADAC]
    Then seek over RandomFillData_len to reach start of script
@@ -664,8 +664,29 @@ Version 3_2
 Version 3_26
    same as Version 3_2, expect that here it's "AU3!EA06"
 
+Version 3_3
+	Script is stored as resource inside the exe at .rsrc\0\RCDATA\SCRIPT
+	added new token for tenary operator
+   
 History
 =======
+
+2.14 Speed up Detokeniser
+	 Tools/Function Renamer: Now adds variables and inner functions when
+	                         adding a function
+	 Minor other GUI bugfixes / enhancements	 
+	 Wartool deobfuscator
+
+	 
+2.13 Added UPX unpacker
+	 Added support for tenary operator [ Example: (a==4) ? "Okay" : "No"]
+	 Speed up scan for script start
+	 Bugfix scan for script start
+	 updated tidy
+	 updated LZSS.exe to handle early EOFs
+	 bugfix path to Winhex was not set / various fixes in whapi.dll
+	 Minor other bugfixes / enhancements 
+
 
 2.12 Resetbutton for OptionsDialog
      Reload/Cancel Menuitems

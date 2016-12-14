@@ -4,6 +4,10 @@ Option Explicit
 Public File As New FileStream
 Public FileName As New ClsFilename
 
+   
+Const TIDY_PATH$ = "data\Tidy\Tidy.exe"
+Const STRIPPER_PATH$ = "data\AU3Stripper\AU3Stripper.exe"
+   
 Public Const ERR_NO_AUT_EXE& = vbObjectError Or &H10
 Public Const ERR_NO_OBFUSCATE_AUT& = vbObjectError Or &H20
 Public Const ERR_NO_TEXTFILE& = vbObjectError Or &H30
@@ -20,11 +24,14 @@ Public Const String_DoubleQuoted As String = "(?:""" & StringBody_DoubleQuoted &
 Public Const StringPattern As String = String_DoubleQuoted & "|" & String_SingleQuoted
 
 
+
+
 Public Const DE_OBFUSC_TYPE_NOT_OBFUSC& = &H0
 Public Const DE_OBFUSC_TYPE_VANZANDE& = &H10000
 Public Const DE_OBFUSC_TYPE_ENCODEIT& = &H20000
 Public Const DE_OBFUSC_TYPE_CHR_ENCODE& = &H10
 Public Const DE_OBFUSC_TYPE_CHR_ENCODE_OLD& = &H8
+Public Const DE_OBFUSC_TYPE_WARTOOL& = &H100
 
 
 Public Const DE_OBFUSC_VANZANDE_VER14& = &H10014
@@ -41,14 +48,22 @@ Public IsCommandlineMode As Boolean
 Public IsOpt_QuitWhenFinish As Boolean
 Public IsOpt_RunSilent As Boolean
 
+' perform Update on every 100th call
+Public Const LAZY_UPDATE& = 100
+Private m_Lazy_UpdateSteps As Single
 
-
-Public Sub GUIEvent_ProcessBegin(Target&, Optional BarLevel& = 0, Optional Skipable As Boolean = False)
+Public Sub GUIEvent_ProcessBegin(ByVal Target&, Optional BarLevel& = 0, Optional Skipable As Boolean = False)
    FrmMain.GUIEvent_ProcessBegin Target, BarLevel, Skipable
+   
+   m_Lazy_UpdateSteps = (Target - BarLevel) / LAZY_UPDATE
+   If m_Lazy_UpdateSteps < 1 Then m_Lazy_UpdateSteps = 1
+   
 End Sub
 
 Public Sub GUIEvent_ProcessUpdate(CurrentValue&, Optional BarLevel& = 0)
-   FrmMain.GUIEvent_ProcessUpdate CurrentValue, BarLevel
+ ' this speeds it up a ton
+   If (CurrentValue Mod m_Lazy_UpdateSteps) = 0 Then _
+      FrmMain.GUIEvent_ProcessUpdate CurrentValue, BarLevel
 End Sub
 Public Sub GUIEvent_ProcessEnd(Optional BarLevel& = 0)
    FrmMain.GUIEvent_ProcessEnd BarLevel
@@ -128,6 +143,7 @@ Sub SaveScriptData(ScriptData$, Optional skipTidy As Boolean)
 End Sub
 
 Public Sub RunTidy(ScriptData$, Optional skipTidy As Boolean)
+   On Error GoTo err_RunTidy
    
    With FrmMain
         
@@ -135,7 +151,7 @@ Public Sub RunTidy(ScriptData$, Optional skipTidy As Boolean)
       .Log ""
      
       If skipTidy Then
-         .Log "Skipping to run 'data\Tidy\Tidy.exe' on" & FileName.NameWithExt & "' to improve sourcecode readability. (Plz run it manually if you need it.)"
+         .Log "Skipping to run '" & TIDY_PATH & "' on" & FileName.NameWithExt & "' to improve sourcecode readability. (Plz run it manually if you need it.)"
       Else
          
          .Log "Running 'Tidy.exe " & FileName.NameWithExt & "' to improve sourcecode readability."
@@ -143,7 +159,7 @@ Public Sub RunTidy(ScriptData$, Optional skipTidy As Boolean)
          FrmMain.ScriptLines = Split(ScriptData, vbCrLf)
          
          Dim cmdline$, parameters$, Logfile$
-         cmdline = App.Path & "\" & "data\Tidy\Tidy.exe"
+         cmdline = App.Path & "\" & TIDY_PATH
          parameters = """" & FileName & """" ' /KeepNVersions=1
          .Log cmdline & " " & parameters
          
@@ -182,5 +198,72 @@ Public Sub RunTidy(ScriptData$, Optional skipTidy As Boolean)
       End If 'skip tidy
       
    End With
+Exit Sub
+err_RunTidy:
+   myMsgBox Err.Description
 End Sub
+
+Public Sub RunStipper(ScriptData$, Optional skipTidy As Boolean)
+On Error GoTo err_Stripper
+   
+   With FrmMain
+        
+      ShowScript ScriptData
+      .Log ""
+     
+      If skipTidy Then
+         .Log "Skipping to run '" & STRIPPER_PATH & "' on" & FileName.NameWithExt & "' to improve sourcecode readability. (Plz run it manually if you need it.)"
+      Else
+         
+         .Log "Running 'Tidy.exe " & FileName.NameWithExt & "' to improve sourcecode readability."
+         
+         FrmMain.ScriptLines = Split(ScriptData, vbCrLf)
+         
+         Dim cmdline$, parameters$, Logfile$
+         cmdline = App.Path & "\" & STRIPPER_PATH
+         parameters = """" & FileName & """" ' /KeepNVersions=1
+         .Log cmdline & " " & parameters
+         
+         Dim TidyExitCode&
+         
+         'Dim ConsoleOut$
+         'ConsoleOut =
+         FrmMain.Console.ShellExConsole cmdline, parameters, TidyExitCode
+         
+         
+         If TidyExitCode = 0 Then
+             .Log "=> Okay (ExitCode: " & TidyExitCode & ")."
+             Dim TidyBackupFileName As New ClsFilename
+             TidyBackupFileName.mvarFileName = FileName.mvarFileName
+             TidyBackupFileName.Name = TidyBackupFileName.Name & "_old1"
+             
+           ' Delete Tidy BackupFile
+             If FrmMain.Chk_TmpFile.value = vbUnchecked Then
+                .Log "Deleting Tidy BackupFile..." ' & TidyBackupFileName.NameWithExt
+                FileDelete TidyBackupFileName.FileName
+             End If
+            
+            
+          ' Readin tidy file
+            ScriptData = FileLoad(FileName.FileName)
+          
+            ShowScript ScriptData
+            
+         Else
+            .Log "=> Error (ExitCode: " & TidyExitCode & ")" ' TidyOutput >>>"
+'            .Log ConsoleOut, "TIDY OUTPUT: "
+'            .Log "<<<"
+            .Log "Attention: Tidy.exe failed. Deobfucator will probably also fail because scriptfile is not in proper format."
+         End If
+         
+      End If 'skip tidy
+      
+   End With
+   
+Exit Sub
+err_Stripper:
+   myMsgBox Err.Description
+   
+End Sub
+
 
