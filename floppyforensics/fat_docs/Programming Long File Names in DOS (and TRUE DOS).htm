@@ -1,0 +1,251 @@
+<HTML>
+<HEAD>
+<TITLE>Programming Long File Names in DOS (and TRUE DOS)</TITLE>
+</HEAD>
+
+<BODY link="blue" vlink="purple" bgcolor="white" text="black" background="bmain.gif">
+<!-- *** a blank table to get text of the left margin in NETSCAPE -->
+<table align=left border=0 width="100%">
+<tr>
+<td width="5%"><br></td>
+<td width="95%">
+
+<p>
+<H1>Long Filenames in DOS (and TRUE DOS)</H1>
+</p>
+
+<p align=left><font color=black size=3 face="Courier New">
+*Description<br>
+These files are distributed to show how to use Long Filenames In DOS and True DOS<br>
+<font color=blue>See below for information on how these filenames are stored on the disk.<br>
+See below for information on Long Filenames on an NT machine.</font><br>
+<br>
+<br>
+Get Microsofts <b>FAT description</b> from <a href="docs/fatgen102.pdf">here</a> and <b>LFN description</b> from 
+<a href="docs/lfnspec.pdf">here</a>.<br>
+(The FAT description, version 1.03, from <a href="http://www.microsoft.com/hwdev/download/hardware/FATGEN103.doc">here</a>)<br>
+They are in PDF format.  You can get a PDF veiwer <a href="http://www.adobe.com/products/acrobat/readstep.html">here</a>.<br>
+<br>
+<br>
+<b>DOS Session</b> (only)<br>
+Make sure to use service 71A0h to make sure that the current system will allow long file names.<br>
+ -If the system does not support long filenames, then AX will be 7100h and the CARRY will be set.<br>
+<br>
+NEVER use these services on a system that does not support long file names.<br>
+<br>
+The AH register is 71h while the AL register contains the old DOS AH registers' setting.  All other registers have the same use.<br>
+<br>
+Use these services just like the older INT 21h services, but replace AH with 71h, and put in AL the old AH value.<br>
+<br>
+<pre><font size=3 face="">
+   service # (AX)         Function name
+      710Dh             Reset Drive
+      7139h             Create Directory
+      713Ah             Remove Directory
+      713Bh             Set Current Directory
+      7141h             Delete File
+      7143h             Get/Set File Attrbs.
+      7147h             Get Current Directory
+      714Eh             Find First File
+      714Fh             Find Next File
+      7156h             Move or Rename File
+      7160h             Get Truename (get shortname)
+      716Ch             Extended Open/Create File
+      71A0h             Get Volume Info
+      71A1h             Find Close
+      71A6h             Get File Info
+      71A7h             Time Conversion
+      71A8h             Generate Short Name
+      71A9h             Server Create Open
+      71AAh             Create/Terminate SUBST
+      43FFh*            <b>BP=5053h, CL=39h</b> Create Directory (Win 98/DOS 7.20)
+      43FFh*            <b>BP=5053h, CL=56h</b> Rename File (Win 98/DOS 7.20)
+
+*these two functions are equivalent to DOS services 39h and 56h, but with a maximum 
+   path length of 128 characters instead of 67.  However, unlike the other functions above,
+   these functions are available under bare DOS and not just in a Windows DOS box.
+
+
+</pre></font>
+See <a href="http://www.cs.cmu.edu/afs/cs.cmu.edu/user/ralf/pub/WWW/files">Ralf Brown's Interrupt list</a>
+for more info on long file names.<br>
+<br>
+Get an example program in C from <a href="longdemo.c">here</a> (3k)<br>
+Get an example program in Pascal from <a href="longdemo.pas">here</a> (3k)<br>
+<hr align=center width="75%">
+<b>How to get the short file name of a long file name:</b><br>
+<pre><font face="" size=3>
+; you must have a file named "thisisalongfilename.extension"
+; for this demo to work
+
+; Assemble with <a href="newbasic.htm">NBASM</a>
+
+.model tiny
+.code
+            push cs      ; make sure es=ds=cs
+            push cs
+            pop  ds
+            pop  es
+            mov  ax,714Eh
+            mov  dx,offset FileName
+            mov  di,offset FDRec
+            xor  cx,cx      ; <--- Use this for file names
+            ;mov  cx,0010h  ; <--- Use this for directory names
+            mov  si,01h
+            int  21h
+
+            mov  si,offset ShortName
+PLoop1:     lodsb
+            or   al,al
+            jz   short PLoopD
+            int  29h
+            jmp  short PLoop1
+PLoopD:     ret
+
+FileName    db  'thisisalongfilename.extension',0
+FDRec       dw  00h,00h          ; File attribs
+FileCrt     dw  00h,00h,00h,00h  ; File Creation date
+LastAcc     dw  00h,00h,00h,00h  ; Last Access
+LastMod     dw  00h,00h,00h,00h  ; Last Modified
+FileSizeH   dw  00h,00h          ; File Size Hi
+FileSizeL   dw  00h,00h          ; File Size Lo
+            dup 8,?              ; reserved
+FullName    dup 260,?            ; Full Long name
+ShortName   dup 14,?             ; Short name
+
+.end
+</pre></font>
+<hr>
+<b>True DOS</b><br>
+View long filenames <b>without Windoze 95</b>.  The included C source code, written by the people from <i>PC Magazine</i>, shows how to view long filenames in True DOS mode.  Not a Windoze 95 DOS session.<br>
+I found it on the <i>ZD-NET</i> web site, cleaned it up, ported it to MS Quick C 2.5 (Small model) and
+now am including it <a href="zips/lfndir.zip">here</a> (22k) for your benefit.<br>
+Also have a look <a href="http://members.xoom.com/dosuser/dosutils.htm">here</a> and get <b>LFNDOS.ZIP</b>.
+The source code is also included as a separate zip file.<br>
+<br>
+<b>Accessing Long File Names in True DOS directly from the disk.  Any DOS version supporting a FAT file system.</b><br>
+<br>
+First, let us discuss the regular DOS File Directory Entry Area: (FDE Area)<br>
+The Root Directory contains 32-byte FDE's.  These 32 byte entries contain information about the file:  File Name, attribute, time, date, etc.<br>
+Here is the format of a regular DOS File Directory Entry:<pre><font face="" size=3>
+ Offset   Size   Description (As of DOS 5.0)
+   00h     8       filename (blank-padded) 
+                    (First byte E5h if file deleted or the FDE is free)
+   08h     3       filename ext (blank-padded)
+   0Bh     1       attributes
+   0Ch     10      reserved
+   16h     2       Time
+   18h     2       Date
+   1Ah     2       Starting cluster number
+   1Ch     4       File Size
+</pre></font>
+<i>Just a note</i>: In later versions with a FAT 32 system, offset 14h was used for the high order word of the Starting Cluster Number.<br>
+<br>
+Now, if we change this format to add LFN support and write to the disk, what happens when we boot to DOS directly and access the disk?  Ouch!!!!!!<br>
+<br>
+Did you note that in offset 00h, if the first byte in the file name is E5h, the file has been deleted and the FDE is free for use?  Also, what if we use an attribute of subdirectory and volume label for the same FDE?  This could not happen, because the volume name can not be a subdirectory entry.  So, Win9x has used the file attribute byte to denote that this FDE is part of a long filename entry.<br>
+<br>
+Let us say we have a file with a LFN of <b>Thisisalongfilename.andextension</b> and we want to save it to disk.  However, the name is longer than the 8.3 format that is allowed in the regular FDE.  With Win9x LFN's, we use more than one FDE to store the name.  These are called individual slots, with the short filename stored as the last slot.<br>
+<br>
+Here is the format of a LFN File Directory Entry:<pre><font face="" size=3>
+ Offset   Size   Description
+   00h     1       LFN record sequence and flags byte
+   01h    10       long file name (first part) (16 bit Unicode, see below) 
+   0Bh     1       Attributes (0Fh)
+   0Ch     1       reserved
+   0Dh     1       Check sum for short file name
+   0Eh    12       long file name (second part) (16 bit Unicode)
+   1Ah     2       First cluster number (always 0000h for LFN records)
+   1Ch     4       long file name (third part) (16 bit Unicode)
+</pre></font>
+
+Let us look at the first byte.  This is the LFN slot number in the wanted sequence of slots for this LFN.  Bits 5-0 are the sequence number with the last sequence number <b>OR'd</b> with 40h.  These LFN slots are directly behind the regular short file name File Directory Entry.<br>
+<br>
+<i>A note</i> : Bit 6 of above denotes last LFN slot for file (i.e: OR'd with 40h above), and Bit 7 set if file deleted.<br>
+<br>
+So, all we have to do is find enough empty FDE tables to hold the LFN and the regular entries.  Each LFN FDE will hold 13 characters of the LFN.  There are 26 bytes used for the LFN, but each character uses a 16 bit word.  Usually, each word contains the ascii character followed by a null char (00h).<br>
+<br>
+Since each LFN FDE will hold 13 chars of the LFN, and we need 32 bytes for the above LFN, we will need (32/13) or 3 LFN FDE plus 1 regular FDE.  So let us find 4 consecutive empty FDE's.  Once we have found them, let us place the regular FDE with the short filename in the 4th slot.<br>
+<br>
+Please note that the LFN FDE's are in reverse order.  Meaning that the first part of the LFN is in the FDE in slot 3, with the second part of the LFN in slot 2, and the last LFN FDE needed in slot 1 with its first byte OR'd with 40h.  So the first byte in the FDE in slot 3 would be 01h, with the first byte in slot 2, being 02h, and the first byte in slot 1, being 43h.<br>
+<br>
+With all of this in mind, the layout of the four FDE's would be:
+<pre><font face="" size=3>other entries....
+slot #1, id = 43h, characters = "ension"
+slot #2, id = 02h, characters = "lename.andext"
+slot #3, id = 01h, characters = "Thisisalongfi"
+slot #4, regular short filename Directory entry
+other entries....
+</pre></font>
+
+That is about all there is to it.  Not very difficult at all.<br>
+<br>
+You must remember a few things including:<br>
+ &nbsp; You can not always assume that there is a LFN FDE for every regular FDE even though the FDE preceding it is empty.<br>
+<br>
+Use caution when writing back to the disk.  You can only read and write full sectors at a time, so make sure that you don't corrupt the unused part of your buffer that you read in.<br>
+<br>
+
+<b>Calculating the Check Sum</b> (the byte at offset 0Dh).<br>
+The checksum (CRC) is calculated quite simple:
+<pre><font face="" size=3>
+
+unsigned char           crc = 0;
+unsigned char             i = 0;
+
+ //actual name is:  ashort_n.ame
+         char shortname[11] = "ashort_name"; 
+
+crc = 0;  // make sure crc = 0 each time one is calculated
+for (i=0; i<11; i++)
+  crc = ((crc<<7) | (crc>>1)) + shortname[i];
+//                ^ = the OR operator (shift backspace key)
+// crc now equals byte for directory entry
+</pre></font>
+
+<hr>
+<b> Long Filenames on an NT machine </b><br>
+Posted by <a href="mailto:wojciech.galazka@polkomtel.com.pl">Wojciech Galazka</a>.  (Thanks Wojciech Galazka)<br>
+<br>
+<i>"...This package provides Win 95 LFN API in an Windows NT 4.0 DOS box.<br>
+This version supercedes any previous version.<br>
+Users of previous versions should replace them with this newest file"</i><br>
+<br>
+Last updated: <font color=blue>18 Oct 2000</font><br>
+Download the zip files: <a href="zips/ntlfn08b.zip">ntlfn08b.zip</a> (25k) and  <a href="zips/ntlfn08s.zip">ntlfn08s.zip</a> (64k) and unzip using the <b>-d</b> parameter.<br>
+<br>
+View the latest <a href="docs/lfnfaq.txt">faq list</a> and the <a href="docs/lfnrdme.txt">readme file</a> for any questions you might have before you download the driver above.<br>
+<br>
+<a href="zips/lfnlib.zip">Download</a> (lfnlib.zip) (61k) a simple library that gives access to file i/o functions that can handle long file names.  It works under Windows 95 that provides LFN API natively and under Windows NT 4.0 once LFN API Services are loaded. It should work under Windows 2000 as well though it has not been tested.  (The source needs to be compiled to generate lib files before actually using the library. The compiler used was Borland C 3.1.)<br>
+<br>
+<br>
+Most of the traffic to this file comes from people using <a href="http://www.delorie.com/djgpp/">DJGPP</a>.  You can also subscribe to the <b>comp.os.msdos.djgpp</b> news group dedicated to this compiler.<br>
+<br>
+
+<hr>
+<b> Long Filenames on a DOS machine</b><br>
+If you are looking for a driver to allow the use of LFN's in True DOS, get <b>LFNDOS.ZIP</b> from
+<a href="http://saturn.spaceports.com/~dosuser/dosutils.htm">here</a>. 
+(<a href="http://saturn.spaceports.com/~dosuser/lfndos.zip">direct link</a>)<br>
+Unfortunately, the site now has lots of adverts and pop ups :(<br>
+
+<br>
+Try another utility by another author from the following link:  
+<a href="http://www.odi.ch/prog/prog.php">http://www.odi.ch/prog/prog.php</a><br>
+<br>
+
+<hr>
+
+<br><br>
+All rights reserved<br>
+<a href="legal.htm">Legal Notice</a><br>
+Copyright &copy; 1984-2002  Forever Young Software<br>
+<a HREF="index.htm">Return to My Home Page</a><br>
+<img src="http://doors.cybertrails.com/cgi-bin/Count.cgi?df=fys.dat&dd=B" align=left vspace="3"><br>
+
+</P>
+</td>
+</tr>
+</table>
+</BODY>
+</HTML>

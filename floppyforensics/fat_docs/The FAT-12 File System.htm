@@ -1,0 +1,169 @@
+<HTML>
+<HEAD><TITLE>The FAT-12 File System</TITLE></HEAD>
+<body>
+
+<H1>The FAT-12 File System</H1>
+
+<hr><h3>What is the DOS FAT disk structure like?</h3>
+
+<P>Assuming the disk is a linear collection of sectors from sector 0..N, the disk would look like this:</P>
+
+<TABLE BORDER CELLSPACING=1>
+	<TR><TD VALIGN="MIDDLE">
+<P>Boot Record</P>
+<P>Sector 0</TD>
+<TD VALIGN="MIDDLE">
+<P>FAT 1</P>
+<P>Sectors 1-9</TD>
+<TD VALIGN="MIDDLE">
+<P>FAT 2</P>
+<P>Sectors 10-18</TD>
+</TD>
+<TD VALIGN="MIDDLE">
+<P>Root Directory</P>
+<P>Sectors 19-32</TD>
+<TD VALIGN="MIDDLE">
+<P>Data Area<br>
+Clusters 2-2849<br>
+Sectors 33-2880</p></TD>
+</TR>
+</TABLE>
+
+<P>You should note that the cluster address is different from the sector address. Cluster 0 and 1 are marked
+as reserved in the FAT. The data area begins with Cluster 2, which is the cluster immediately following the
+root directory.</P>
+
+<hr><h3>The Boot Sector</h3>
+
+The boot record has a structure that looks like this: (A BYTE is 8 bits, a WORD is 16 bits and a DWORD is 32 bits)</P>
+
+<PRE>
+BYTE jump[3]
+BYTE SysName[8]
+WORD BytesPerSector
+BYTE SectorsPerCluster
+WORD ReservedSectors
+BYTE FATcount
+WORD MaxRootEntries
+WORD TotalSectors1
+BYTE MediaDescriptor
+WORD SectorsPerFAT
+WORD SectorsPerTrack
+WORD HeadCount
+DWORD HiddenSectors
+DWORD TotalSectors2
+BYTE DriveNumber
+BYTE Reserved1
+BYTE ExtBootSignature
+DWORD VolumeSerial
+BYTE VolumeLabel[11]
+BYTE Reserved2[8]
+</PRE>
+
+<hr><h3>The FAT Table</h3>
+
+<p>The FAT table is <tt>SectorsPerFAT</tt> (9) sectors long.  There are <tt>FATcount</tt> (2) FAT tables on the disk.</P>
+
+<P>A FAT entry can have the following values:</P>
+
+<PRE>
+0		Unused Cluster
+0xFF0-0xFF6	Reserved Cluster
+0xFF7		Bad Cluster
+0xFF8-0xFFF	End Of File
+other		Next Cluster in file
+</PRE>
+
+<P>A FAT-12 entry for a DOS floppy disk is 12 bits, so 3 bytes are used to encode 2 positions. The number is formed as either
+A1A2 or B1B2 depending on whether you are reading even or odd valued blocks.</P>
+
+<TABLE BORDER CELLSPACING=1>
+<TR><TD VALIGN="MIDDLE">
+<P>A2 </P>
+<P>8 bits</TD>
+<TD VALIGN="MIDDLE">
+<P>B2 </P>
+<P>4 bits</TD>
+<TD VALIGN="MIDDLE">
+<P>A1 </P>
+<P>4 bits</TD>
+<TD VALIGN="MIDDLE">
+<P>B1 </P>
+<P>8 bits</TD>
+</TR>
+</TABLE>
+
+<p>Assuming that FAT is an array of BYTE, you can use the following code to get and set entries of the FAT Table:
+
+<PRE>
+WORD GetCluster(WORD fatEntry)
+{
+   WORD sector;
+   int FatIndex = ((fatEntry * 3) /2 );
+   if (fatEntry & 0x0001)
+   {
+      sector = *((WORD *) &FAT[FatIndex]);
+      sector = sector >> 4 ;
+   }
+   else
+   {
+      sector = *((WORD *) &FAT[FatIndex]);
+      sector = sector &0xfff;
+   }
+   return sector;
+}
+
+void SetCluster(WORD cluster,WORD FAT12ClusEntryVal)
+{
+   WORD ThisFATEntOffset = (cluster * 3) /2;
+   if(cluster & 0x0001)
+   {
+      FAT12ClusEntryVal = FAT12ClusEntryVal << 4;
+      *((WORD *) &FAT[ThisFATEntOffset]) = (*((WORD *) &FAT[ThisFATEntOffset])) & 0x000F;
+   }
+   else
+   {
+      FAT12ClusEntryVal = FAT12ClusEntryVal & 0x0FFF;
+      *((WORD *) &FAT[ThisFATEntOffset]) = (*((WORD *) &FAT[ThisFATEntOffset])) & 0xF000;
+   }
+   *((WORD *) &FAT[ThisFATEntOffset]) = (*((WORD *) &FAT[ThisFATEntOffset])) | FAT12ClusEntryVal;
+}
+</PRE>
+
+<hr><h3>Directories</h3>
+
+<P>The root directory begins after the last sector of the second FAT. It occupies <tt>MaxRootEntries*32/SectorSize<tt> (14) sectors.
+A directory entry has a structure that looks like this:</P>
+
+<PRE>
+BYTE Name[8];		// Contains the file name.  Padded with spaces, not NULL terminated. 
+BYTE Extension[3];	// Contains the extension.  It is also padded with spaces.  There is no '.' 
+BYTE Attributes;	// Holds the attributes.
+BYTE Reserved[10];	// Reserved for future DOS use.
+WORD Time;
+WORD Date;
+WORD startCluster;	// Holds the first cluster the file starts.
+DWORD fileSize;		// Make sure this is updated if modifying
+</PRE>
+
+<P>The first character of the field Name denotes the validity of the entry. A value of 0 denotes it has never been used. An
+ASCII character 229 (hex 0xe5 - the A with the circle above it) marks a file that has been deleted.</P>
+
+<P>All file names are case-insensative.</p>
+
+<P>The attributes for a directory entry are as follows: </P>
+
+<PRE>
+BYTE READONLY = 0x01;
+BYTE HIDDEN   = 0x02;
+BYTE SYSTEM   = 0x04;
+BYTE VOLUME   = 0x08;
+BYTE DIRECT   = 0x10;
+BYTE ARCHIVE  = 0x20;
+</PRE>
+
+<hr><h4><i>Edited by Walter Williams, May 23, 2000</i></h4>
+
+</body>
+</HTML>
+

@@ -1,0 +1,577 @@
+<!doctype html public "-//w3c//DTD HTML 3.2//EN">
+<html>
+<!-- http://members.aol.com/vindaci/pub/doc/lfn/lfn.html -->
+<!-- Copyright (c)1996-1998 vinDaci -->
+
+<head>
+<title>Long Filename Specification</title>
+</head>
+
+<body>
+
+<h2 align="center">Long Filename Specification</h2>
+<font size="-1">
+
+<p align="center">by vinDaci</font> <font size="-2"><br>
+fourth release</font> <font size="-1"><br>
+First Release: November 18th, 1996</font> <font size="-1"><br>
+Last Update: January 6th, 1998 (Document readability update)</font> </p>
+
+<hr>
+
+<h3>Compatibility</h3>
+
+<p>Long filename (here on forth referred to as &quot;LFN&quot;) design for Windows95 is
+designed to be 99% compatible with the old DOS 8.3 format. The 1% discripency comes in
+when old DOS programs can detect the <em>presence</em> of LFN (but unfortunately not the
+LFN itself), which in no way interferes with regular program operations except for perhaps
+low-level disk utility programs (such as disk error fixing programs, disk optimization
+programs, anti-virus program, etc.) <a name="background"></p>
+
+<hr>
+
+<h3>DOS 8.3 Filename Background</h3>
+
+<p>I trust that anyone who wish to know the details of LFN has at least a small knowledge
+in DOS 8.3 filename specification. In this document, however, I'll assume you know very
+little about the 8.3 filename specs, however. What you need to know in order to understand
+this documentation is that 8.3 filenames are stored in a place on the disk called the <dfn>directory
+table</dfn>. This place contains the list of filenames and other information associated
+with each file, such as the file date, time, size, attributes, etc. (Note: Contrary to
+some belief, the directory table is <em>not</em> the same as the FAT -- e-mail me if you
+wish to know what FAT is.) </p>
+
+<p>The file attributes, mentioned above, play some big roles in LFN. It is important to
+note that a file's attributes are may consist of one or more of the following: </p>
+<div align="center"><center>
+
+<table width="50%" border="1">
+  <tr>
+    <td><code>Archive</code> </td>
+  </tr>
+  <tr>
+    <td><code>Read-Only</code> </td>
+  </tr>
+  <tr>
+    <td><code>System</code> </td>
+  </tr>
+  <tr>
+    <td><code>Hidden</code> </td>
+  </tr>
+  <tr>
+    <td><code>Directory</code> </td>
+  </tr>
+  <tr>
+    <td><code>Volume</code> </td>
+  </tr>
+</table>
+</center></div>
+
+<p>Most programmers are aware of the Archive, Read-Only, System, and Hidden attrbiutes,
+but for those of you who don't know, please allow me to explain what each of these
+attributes is/does: 
+
+<ul>
+  <li>The <dfn>Archive attribute</dfn> tells that a file has been backed up (though most
+    programs just ignore this). </li>
+  <li>The <dfn>Read-Only attribute</dfn> keeps a file from accidentally getting overwritten;
+    note that any program can unset this attribute should it know how to detect this attribute
+    and unset it -- that's why it is used just to keep a file from <em>accidentally</em>
+    getting overwritten. </li>
+  <li>The <dfn>System attribute</dfn> tells that the file is used for some important operation
+    so it should not be messed with except by the program that created it; any file with this
+    attribute cannot be seen with the <kbd>DIR</kbd> command except with the <kbd>/a</kbd> or <kbd>/as</kbd>
+    arguments in DOS 5 and above. </li>
+  <li>The <dfn>Hidden</dfn> attribute tells that a file should normally be hidden from the
+    user's view. Any file with this attribute cannot be seen with <kbd>DIR</kbd> command
+    either, except with the <kbd>/a</kbd> or <kbd>/ah</kbd> arguments in DOS 5 and above. </li>
+</ul>
+
+<p>And the explanation of the other attributes (the <em>really</em> important ones): 
+
+<ul>
+  <li>The <dfn>Directory attribute</dfn> is used to tell that a file is not actually a file
+    but a directory. This type of file contains a pointer to a part of the disk that contains
+    another directory table; this directory table that's pointed to is the subdirectory of the
+    directory that has the pointer. In another words, when you &quot;CD&quot; to that file,
+    you go into the directory table the file points to, making it look as though you are
+    &quot;inside&quot; that directory. In reality, you only switch the directory tables. </li>
+  <li>The <dfn>volume attribute</dfn> too is used to tell that a file is not actually a file.
+    This attribute is used to indicate the volume label of the drive (the name of the disk). A
+    file with this attribute can never be displayed with the <kbd>DIR</kbd> command.
+    Furthermore, there can be only one file with this attribute on the entire disk, and this
+    file must be in the root directory of the disk. <br>
+    &nbsp;&nbsp;&nbsp;&nbsp; The volume attribute has a funny story attached to it -- There
+    not only exists a file with the volume attribute, but a copy of the volume label is also
+    located in the boot sector (the very beginning of the disk that has weird code and disk
+    info on it) as a readable text. But when you view a directory with the <kbd>DIR</kbd>
+    command, the one that actually gets displayed is the volume attributed file's name, not
+    the volume label in the boot sector. Furthermore, even though files with volume attribute
+    is hidden from the <kbd>DIR</kbd> command, programs, when retrieving filenames, can
+    retrieve volume labels.</a> All these factors about volume attributes come into a big
+    factor when we look at Long Filenames. </li>
+</ul>
+
+<p>As an addendum, it might be interesting to note that each 8.3 file entry is 32 bytes
+long but that not all 32 bytes are used to store data -- some of them are plainly left as
+blank bytes. In Windows95 version of the directory table, however, all 32 bytes are used. </p>
+
+<hr>
+
+<h3>General Specification</h3>
+
+<p>Just like DOS 8.3 filenames, Windows95 LFNs are also stored on directory tables,
+side-by-side with DOS 8.3 filenames. On top of that, to achieve compatibility with old DOS
+programs Microsoft designed LFN in a way so it resembles the old DOS 8.3 format.
+Furthermore, an 8.3 format version of LFN (<code>tttttt~n.xxx</code>) is also present next
+to each LFN entry for compatibility with non-LFN supporting programs. <a
+name="organization"></p>
+
+<hr>
+
+<h3>Organization</h3>
+
+<p>From a low-level point-of-view, a normal directory table that only contains 8.3
+filenames look like this: </p>
+<div align="center"><center>
+
+<table width="50%" border="1">
+  <tr>
+    <td><code>...</code> </td>
+  </tr>
+  <tr>
+    <td><code>8.3 entry</code> </td>
+  </tr>
+  <tr>
+    <td><code>8.3 entry</code> </td>
+  </tr>
+  <tr>
+    <td><code>8.3 entry</code> </td>
+  </tr>
+  <tr>
+    <td><code>8.3 entry</code> </td>
+  </tr>
+</table>
+</center></div>
+
+<p>If you look at a directory table that contains LFN entries, however, this is what you
+will see: </p>
+<div align="center"><center>
+
+<table width="50%" border="1">
+  <tr>
+    <td><code>...</code> </td>
+  </tr>
+  <tr>
+    <td><code>LFN entry 3</code> </td>
+  </tr>
+  <tr>
+    <td><code>LFN entry 2</code> </td>
+  </tr>
+  <tr>
+    <td><code>LFN entry 1</code> </td>
+  </tr>
+  <tr>
+    <td><code>8.3 entry (tttttt~n.xxx)</code> </td>
+  </tr>
+</table>
+</center></div>
+
+<p>Notice that Long Filenames can be pretty long, so LFN entries in a 8.3 directory
+structure can take up several 8.3 directory entry spaces. This is why the above file entry
+has several LFN entries for a single 8.3 file entry. </p>
+
+<p>Despite taking up 8.3 filename spaces, Long Filenames do not show up with the <kbd>DIR</kbd>
+command or with any other program, even the ones that do not recognize the LFN. How, then,
+do LFN entries get hidden from DOS? The answer is quite simple: By giving LFN entries
+&quot;Read-only, System, Hidden, and Volume&quot; attributes. (If you do not know details
+about file attributes, read the above text about </a><a href="#background">DOS 8.3
+Filename Background</a>.) </p>
+
+<p>A special attention should be given to the fact that this combination of attributes --
+Read-only, System, Hidden, Volume -- is not possible to make under normal circumstances
+using common utilities found in the market place (special disk-editing programs, such as
+Norton Disk Editor, is an exception.) </p>
+
+<p>This technique of setting Read-only, System, Hidden, Volume attributes works because
+most programs ignore files with volume attributes altogether, and even if they don't, they
+won't display any program that has system or hidden attributes set. And since the
+Read-only attribute is set, programs won't write anything over it. However, you can view
+&quot;parts&quot; of the LFN entries if any program is designed to show Volume attributed
+files. </p>
+<a name="storage">
+
+<hr>
+
+<h3>Storage Organization</h3>
+
+<p>To understand the LFN storage organization within a directory table, it is important to
+understand the 8.3 storage organization. This is mainly due to the fact that LFN entries
+are stored similar to 8.3 filenames to avoid conflicts with DOS applications. </p>
+
+<p>The format of the traditional DOS 8.3 is as follows: </p>
+<div align="center"><center>
+
+<table width="80%" border="1">
+  <tr>
+    <th width="15%" align="center">Offset </th>
+    <th width="15%" align="center">Length </th>
+    <th width="*" align="left">&nbsp;&nbsp;Value </th>
+  </tr>
+  <tr>
+    <td align="center">0 </td>
+    <td align="center">8 bytes </td>
+    <td align="left">&nbsp;&nbsp;Name </td>
+  </tr>
+  <tr>
+    <td align="center">8 </td>
+    <td align="center">3 bytes </td>
+    <td align="left">&nbsp;&nbsp;Extension </td>
+  </tr>
+  <tr>
+    <td align="center">11 </td>
+    <td align="center">byte </td>
+    <td align="left">&nbsp;&nbsp;Attribute (<code>00ARSHDV</code>) <br>
+    &nbsp;&nbsp;<code>0</code>: unused bit <br>
+    &nbsp;&nbsp;<code>A</code>: archive bit, <br>
+    &nbsp;&nbsp;<code>R</code>: read-only bit <br>
+    &nbsp;&nbsp;<code>S</code>: system bit <br>
+    &nbsp;&nbsp;<code>D</code>: directory bit <br>
+    &nbsp;&nbsp;<code>V</code>: volume bit </td>
+  </tr>
+  <tr>
+    <td align="center">22 </td>
+    <td align="center">word </td>
+    <td align="left">&nbsp;&nbsp;Time </td>
+  </tr>
+  <tr>
+    <td align="center">24 </td>
+    <td align="center">word </td>
+    <td align="left">&nbsp;&nbsp;Date </td>
+  </tr>
+  <tr>
+    <td align="center">26 </td>
+    <td align="center">word </td>
+    <td align="left">&nbsp;&nbsp;Cluster (desc. below) </td>
+  </tr>
+  <tr>
+    <td align="center">28 </td>
+    <td align="center">dword </td>
+    <td align="left">&nbsp;&nbsp;File Size </td>
+  </tr>
+</table>
+</center></div>
+
+<p align="center">Note: <dfn>WORD</dfn> = 2 bytes, <dfn>DWORD</dfn> = 4 bytes </p>
+
+<p>Everything above you should know what they are except perhaps for the cluster. The
+cluster is a value representing another part of the disk, normally used to tell where the
+beginning of a file is. In case of a directory, it is the cluster that tells where the
+subdirectory's directory table starts. </p>
+
+<p>You may not know this, but LFN specification not only added the capability of having
+longer filenames, but it also improved the capability of 8.3 filenames as well. This new
+8.3 filename improvements are accomplished by using the unused directory table spaces
+(Remember how I told you that 8.3 filenames take up 32 bytes but not all 32 bytes are
+used? Now it's all used up!) This new format is as follows -- try comparing it with the
+traditional format shown above!: </p>
+<div align="center"><center>
+
+<table width="80%" border="1">
+  <tr>
+    <th width="15%" align="center">Offset </th>
+    <th width="15%" align="center">Length </th>
+    <th width="*" align="left">&nbsp;&nbsp;Value </th>
+  </tr>
+  <tr>
+    <td align="center">0 </td>
+    <td align="center">8 bytes </td>
+    <td align="left">&nbsp;&nbsp;Name </td>
+  </tr>
+  <tr>
+    <td align="center">8 </td>
+    <td align="center">3 bytes </td>
+    <td align="left">&nbsp;&nbsp;Extension </td>
+  </tr>
+  <tr>
+    <td align="center">11 </td>
+    <td align="center">byte </td>
+    <td align="left">&nbsp;&nbsp;Attribute (<code>00ARSHDV</code>) </td>
+  </tr>
+  <tr>
+    <td align="center">12 </td>
+    <td align="center">byte </td>
+    <td align="left" nowrap>&nbsp;&nbsp;NT (Reserved for WindowsNT; <br>
+    &nbsp;&nbsp;always 0) </td>
+  </tr>
+  <tr>
+    <td align="center">13 </td>
+    <td align="center">byte </td>
+    <td align="left">&nbsp;&nbsp;Created time; millisecond portion </td>
+  </tr>
+  <tr>
+    <td align="center">14 </td>
+    <td align="center">word </td>
+    <td align="left">&nbsp;&nbsp;Created time; hour and minute </td>
+  </tr>
+  <tr>
+    <td align="center">16 </td>
+    <td align="center">word </td>
+    <td align="left">&nbsp;&nbsp;Created date </td>
+  </tr>
+  <tr>
+    <td align="center">18 </td>
+    <td align="center">word </td>
+    <td align="left">&nbsp;&nbsp;Last accessed date </td>
+  </tr>
+  <tr>
+    <td align="center">20 </td>
+    <td align="center">word </td>
+    <td align="left" nowrap>&nbsp;&nbsp;Extended Attribute <br>
+    &nbsp;&nbsp;(reserved for OS/2; always 0) </td>
+  </tr>
+  <tr>
+    <td align="center">22 </td>
+    <td align="center">word </td>
+    <td align="left">&nbsp;&nbsp;Time </td>
+  </tr>
+  <tr>
+    <td align="center">24 </td>
+    <td align="center">word </td>
+    <td align="left">&nbsp;&nbsp;Date </td>
+  </tr>
+  <tr>
+    <td align="center">26 </td>
+    <td align="center">word </td>
+    <td align="left">&nbsp;&nbsp;Cluster </td>
+  </tr>
+  <tr>
+    <td align="center">28 </td>
+    <td align="center">dword </td>
+    <td align="left">&nbsp;&nbsp;File Size </td>
+  </tr>
+</table>
+</center></div>
+
+<p>In any case, this new 8.3 filename format is the format used with the LFN. As for the
+LFN format itself (seen </a><a href="#organization">previously</a>) is stored
+&quot;backwards&quot;, with the first entry toward the bottom and the last entry at the
+top, right above the new 8.3 filename entry. </p>
+
+<p>Each LFN entry is stored as follows: </p>
+<div align="center"><center>
+
+<table width="80%" border="1">
+  <tr>
+    <th width="15%" align="center">Offset </th>
+    <th width="15%" align="center">Length </th>
+    <th width="*" align="left">&nbsp;&nbsp;Value </th>
+  </tr>
+  <tr>
+    <td align="center">0 </td>
+    <td align="center">byte </td>
+    <td align="left">&nbsp;&nbsp;Ordinal field (desc. below) </td>
+  </tr>
+  <tr>
+    <td align="center">1 </td>
+    <td align="center">word </td>
+    <td align="left">&nbsp;&nbsp;Unicode character 1 (desc. below) </td>
+  </tr>
+  <tr>
+    <td align="center">3 </td>
+    <td align="center">word </td>
+    <td align="left">&nbsp;&nbsp;Unicode character 2 </td>
+  </tr>
+  <tr>
+    <td align="center">5 </td>
+    <td align="center">word </td>
+    <td align="left">&nbsp;&nbsp;Unicode character 3 </td>
+  </tr>
+  <tr>
+    <td align="center">7 </td>
+    <td align="center">word </td>
+    <td align="left">&nbsp;&nbsp;Unicode character 4 </td>
+  </tr>
+  <tr>
+    <td align="center">9 </td>
+    <td align="center">word </td>
+    <td align="left">&nbsp;&nbsp;Unicode character 5 </td>
+  </tr>
+  <tr>
+    <td align="center">11 </td>
+    <td align="center">byte </td>
+    <td align="left">&nbsp;&nbsp;Attribute </td>
+  </tr>
+  <tr>
+    <td align="center">12 </td>
+    <td align="center">byte </td>
+    <td align="left">&nbsp;&nbsp;Type (reserved; always 0) </td>
+  </tr>
+  <tr>
+    <td align="center">13 </td>
+    <td align="center">byte </td>
+    <td align="left">&nbsp;&nbsp;Checksum (desc. below) </td>
+  </tr>
+  <tr>
+    <td align="center">14 </td>
+    <td align="center">word </td>
+    <td align="left">&nbsp;&nbsp;Unicode character 6 </td>
+  </tr>
+  <tr>
+    <td align="center">16 </td>
+    <td align="center">word </td>
+    <td align="left">&nbsp;&nbsp;Unicode character 7 </td>
+  </tr>
+  <tr>
+    <td align="center">18 </td>
+    <td align="center">word </td>
+    <td align="left">&nbsp;&nbsp;Unicode character 8 </td>
+  </tr>
+  <tr>
+    <td align="center">20 </td>
+    <td align="center">word </td>
+    <td align="left">&nbsp;&nbsp;Unicode character 9 </td>
+  </tr>
+  <tr>
+    <td align="center">22 </td>
+    <td align="center">word </td>
+    <td align="left">&nbsp;&nbsp;Unicode character 10 </td>
+  </tr>
+  <tr>
+    <td align="center">24 </td>
+    <td align="center">word </td>
+    <td align="left">&nbsp;&nbsp;Unicode character 11 </td>
+  </tr>
+  <tr>
+    <td align="center">26 </td>
+    <td align="center">word </td>
+    <td align="left">&nbsp;&nbsp;Cluster (unused; always 0) </td>
+  </tr>
+  <tr>
+    <td align="center">28 </td>
+    <td align="center">word </td>
+    <td align="left">&nbsp;&nbsp;Unicode character 12 </td>
+  </tr>
+  <tr>
+    <td align="center">30 </td>
+    <td align="center">word </td>
+    <td align="left">&nbsp;&nbsp;Unicode character 13 </td>
+  </tr>
+</table>
+</center></div>
+
+<p>Throughout this entry, you see &quot;unicode characters&quot;. Unicode characters are
+2-byte long characters (as opposed to ASCII characters that are 1-byte long each) that
+support not only traditional latin alphabet characters and arabic numbers but they also
+support the languages of the rest of the world, including the CJK trio (Chinese, Japanese,
+Korean), Arabic, Hebrew, etc. Plus you have some space left over for more math and science
+symbols. Unicode characters are still going through revisions (on their second revision as
+I am writing, I believe) but Windows95 has left spaces to more fully support unicodes in
+the future. You can keep up with the Unicode development by visiting the Unicode webpage
+at <a href="http://www.unicode.org/">www.unicode.org</a>. Note that, in the 2-byte unicode
+character, the first byte is always the character and the second byte is always the blank,
+as opposed to having the first byte blank and the second byte blank. There is a perfectly
+logical explanation for this but it's kind of long to get into at the moment so e-mail me
+if you are curious. (If you have a computer dictionary, look up &quot;little endian&quot;
+and it'll explain everything.) For our purposes, though, just treat every other word as an
+ASCII character as long as the following byte is a blank character. Anyways, notice that,
+in order to maintain the compatibility with older programs, the attribute byte and the
+cluster word had to be kept. Because of this, each unicode character had to be scattered
+throughout the entry. </p>
+
+<p>By now you probably noticed that there is no file information (size, date, etc.) stored
+in the LFN entry. Any information about the file itself is stored in the 8.3 filename,
+located below all the LFN entries (as <a href="#organization">mentioned before</a>). </p>
+
+<p>The checksum is created from the shortname data. The steps/equation used to calculate
+this checksum is as follows: </p>
+<div align="center"><center>
+
+<table width="80%" border="1">
+  <tr>
+    <th>Step # </th>
+    <th>Task </th>
+  </tr>
+  <tr>
+    <td align="center">1 </td>
+    <td align="left">&nbsp;&nbsp; Take the ASCII value of the first character. This is your
+    first sum. </td>
+  </tr>
+  <tr>
+    <td align="center">2 </td>
+    <td align="left">&nbsp;&nbsp; Rotate all the bits of the sum rightward by one bit. </td>
+  </tr>
+  <tr>
+    <td align="center">3 </td>
+    <td align="left">&nbsp;&nbsp; Add the ASCII value of the next character with the value
+    from above. This is your next sum. </td>
+  </tr>
+  <tr>
+    <td align="center">4 </td>
+    <td align="left">&nbsp;&nbsp; Repeat steps 2 through 3 until you are all through with the
+    11 characters in the 8.3 filename. </td>
+  </tr>
+</table>
+</center></div>
+
+<p align="center">In C/C++, the above steps look like this: </p>
+<div align="center"><center>
+
+<table width="80%" border="0">
+  <tr>
+    <td><br>
+    <code>for (sum = i = 0; i &lt; 11; i++) {</code> <br>
+    <code>&nbsp;&nbsp;&nbsp;&nbsp;sum = (((sum &amp; 1) &lt;&lt; 7) | ((sum &amp; 0xfe)
+    &gt;&gt; 1)) + name[i];</code> <br>
+    <code>}</code> </td>
+  </tr>
+</table>
+</center></div>
+
+<p>This resulting checksum value is stored in each of the LFN entry to ensure that the
+short filename it points to indeed is the currently 8.3 entry it should be pointing to. </p>
+
+<p>Also, note that any file with a name that does not fill up the 8.3 spaces completely
+leaves a trace of space characters (ASCII value 32) in the blank spaces. These blank
+spaces do go into the calculation of the checksum and does not get left out of the
+calculation. </p>
+
+<p>I'm sure you're dying to know what the ordinal field is. This byte of information tells
+the order of the LFN entries (1st LFN entry, 2nd LFN entry, etc.) If it's out of order,
+something is wrong! How Windows95 would deal with LFN when such a thing happen is a
+mystery to me. <br>
+&nbsp;&nbsp; An example of how ordinal field work: The first LFN entry, located at the
+very bottom as we have <a href="#organization">seen before</a>, has an ordinal field value
+1; the second entry (if any -- remember that a LFN doesn't always have to be tens of
+characters long), located just before the first entry, has an ordinal field value of 2;
+etc. As an added precaution, the last entry has a marking on the ordinal field that tells
+that it is the last entry. This marking is done by setting the 6th bit of the ordinal
+field. </p>
+
+<p>That is basically all there is to long filenames. But before we end this conversation
+(while we're on the subject of LFN,) I think it would be interesting to note that, since
+any long filename can be up to 255 bytes long and each entry can hold up to 13 characters,
+there can only be up to 20 entries of LFN per file. That means it only needs 5 bits (0th
+bit to 4th bit) of the ordinal field. And with the 6th bit used to mark the last entry,
+two bits are left for open usage -- the 5th and the 7th bit. Whether or not Microsoft is
+going to do anything with these bits -- or why Microsoft used the 6th bit to indicate the
+last entry instead of 7th or 5th bit and limited the file length to 255 bits -- remains to
+be a mystery only Microsoft will keep to itself. </p>
+
+<hr>
+
+<h3>Credit</h3>
+
+<p><font size="-1">Much the information in this documentation has been gathered from
+Norton Utilities for Windows95 user's manual. Detailed researches were done using Norton
+Utilities Disk Edit. The checksum calculation was graciously donated by Jacob Verhoeks to <code>comp.os.msdos.programmer</code>
+Newsgroup as a reply to my request. Apparently the file Mr. Verhoeks used to get me the
+checksum code, <code>vfat.txt</code>, that comes with newer Linux operating systems have
+some good information on Windows95 LFN. BTW, I just (like, right now) found out that
+checksum algorithm is also in Ralf Brown's Interrupt List. </font></p>
+
+<hr>
+
+<p>Copyright ©1996-1998 vinDaci </p>
+</body>
+</html>

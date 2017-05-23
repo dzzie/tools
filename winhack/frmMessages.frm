@@ -1,13 +1,34 @@
 VERSION 5.00
+Object = "{3B7C8863-D78F-101B-B9B5-04021C009402}#1.2#0"; "RICHTX32.OCX"
 Begin VB.Form frmMessages 
-   ClientHeight    =   5190
+   ClientHeight    =   5760
    ClientLeft      =   60
    ClientTop       =   345
    ClientWidth     =   5535
    LinkTopic       =   "Form3"
-   ScaleHeight     =   5190
+   ScaleHeight     =   5760
    ScaleWidth      =   5535
    StartUpPosition =   2  'CenterScreen
+   Begin RichTextLib.RichTextBox RichTextBox1 
+      Height          =   375
+      Left            =   0
+      TabIndex        =   31
+      Top             =   5280
+      Width           =   3375
+      _ExtentX        =   5953
+      _ExtentY        =   661
+      _Version        =   393217
+      Enabled         =   -1  'True
+      TextRTF         =   $"frmMessages.frx":0000
+   End
+   Begin VB.CommandButton cmdRtfColor 
+      Caption         =   "rtf selback color test"
+      Height          =   375
+      Left            =   3600
+      TabIndex        =   30
+      Top             =   5280
+      Width           =   1695
+   End
    Begin VB.Frame Frame4 
       Caption         =   "MoveWindow( hwnd, x, y, w, h, repaint)"
       Height          =   915
@@ -78,9 +99,9 @@ Begin VB.Form frmMessages
       Width           =   5415
       Begin VB.ComboBox Combo4 
          Height          =   315
-         ItemData        =   "frmMessages.frx":0000
+         ItemData        =   "frmMessages.frx":008B
          Left            =   1920
-         List            =   "frmMessages.frx":0013
+         List            =   "frmMessages.frx":009E
          Style           =   2  'Dropdown List
          TabIndex        =   16
          Top             =   240
@@ -96,9 +117,9 @@ Begin VB.Form frmMessages
       End
       Begin VB.ComboBox Combo3 
          Height          =   315
-         ItemData        =   "frmMessages.frx":0099
+         ItemData        =   "frmMessages.frx":0124
          Left            =   120
-         List            =   "frmMessages.frx":00A9
+         List            =   "frmMessages.frx":0134
          Style           =   2  'Dropdown List
          TabIndex        =   13
          Top             =   240
@@ -167,9 +188,9 @@ Begin VB.Form frmMessages
       End
       Begin VB.ComboBox Combo1 
          Height          =   315
-         ItemData        =   "frmMessages.frx":00F4
+         ItemData        =   "frmMessages.frx":017F
          Left            =   240
-         List            =   "frmMessages.frx":011C
+         List            =   "frmMessages.frx":01A7
          Style           =   2  'Dropdown List
          TabIndex        =   6
          Top             =   240
@@ -232,9 +253,9 @@ Begin VB.Form frmMessages
       End
       Begin VB.ComboBox Combo2 
          Height          =   315
-         ItemData        =   "frmMessages.frx":01CD
+         ItemData        =   "frmMessages.frx":0258
          Left            =   780
-         List            =   "frmMessages.frx":01CF
+         List            =   "frmMessages.frx":025A
          Style           =   2  'Dropdown List
          TabIndex        =   1
          Top             =   300
@@ -302,7 +323,54 @@ Private Const SW_SHOWNOACTIVATE = 4
 Private Const SW_SHOWNORMAL = 1
 
 Private msgNum As Long
+Private Const LF_FACESIZE = 32
 
+Private Type CHARFORMAT
+    cbSize As Integer                           '2
+    wPad1 As Integer                            '4
+    dwMask As Long                              '8
+    dwEffects As Long                           '12
+    yHeight As Long                             '16
+    yOffset As Long                             '20
+    crTextColor As Long                         '24
+    bCharSet As Byte                            '25
+    bPitchAndFamily As Byte                     '26
+    szFaceName(0 To LF_FACESIZE - 1) As Byte    '58
+End Type
+
+
+'https://msdn.microsoft.com/en-us/library/windows/desktop/bb787883(v=vs.85).aspx
+Private Type CHARFORMAT2
+    cbSize As Integer                           '2
+    wPad1 As Integer                            '4
+    dwMask As Long                              '8
+    dwEffects As Long                           '12
+    yHeight As Long                             '16
+    yOffset As Long                             '20
+    crTextColor As Long                         '24
+    bCharSet As Byte                            '25
+    bPitchAndFamily As Byte                     '26
+    szFaceName(0 To LF_FACESIZE - 1) As Byte    '58
+    wPad2 As Integer                            '60
+
+    ' Additional stuff supported by RICHEDIT20
+    wWeight As Integer         'Font weight (LOGFONT value)
+    sSpacing As Integer        'Amount to space between letters
+    crBackColor As Long        'Background color
+    lLCID As Long              'Locale ID
+    dwReserved As Long         'Reserved. Must be 0
+    sStyle As Integer          'Style handle
+    wKerning As Integer        'Twip size above which to kern char pair
+    bUnderlineType As Byte     'Underline type
+    bAnimation As Byte         'Animated text like marching ants
+    bRevAuthor As Byte         'Revision author index
+    bReserved1 As Byte
+End Type
+
+
+
+Private Const EM_SETCHARFORMAT = (&H400 + 68)
+Private Const CFM_BACKCOLOR = &H4000000
 
 
 Private Sub cmdMoveWindow_Click()
@@ -311,6 +379,16 @@ Private Sub cmdMoveWindow_Click()
     
     Exit Sub
 hell: MsgBox Err.Description
+End Sub
+
+Private Sub cmdRtfColor_Click()
+
+    Dim tCF2 As CHARFORMAT2
+    tCF2.dwMask = CFM_BACKCOLOR
+    tCF2.crBackColor = vbYellow
+    tCF2.cbSize = Len(tCF2)
+    SendMessage CLng(frmWinHack.txthWnd), EM_SETCHARFORMAT, 1, tCF2
+    
 End Sub
 
 Private Sub Command1_Click()

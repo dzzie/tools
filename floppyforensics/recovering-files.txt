@@ -1,0 +1,300 @@
+If you saw the experiment log that was up in this place then welcome back.
+
+If not, then you missed watching the learnign curve and discover in action,
+but you will not get the benifit of the abridged and conclusive version.
+
+So the topic of the day is how to undelete files from a FAT12 partition.
+To keep the matter concise and managable we are going to work with floppy
+disks to not only limit the amout of data we must sift through but also 
+so that we dont accidently corrupt or hardrives and loose any data.
+
+First matter of business is to get a quick overview of the disk format. There
+are many ways to look at the structure of a disk, but i think the healthiest
+way for us to look at it with a couple preconceptions.
+
+1) A floppy is just one large binary file to be read and manipulated, just like
+patching an exe
+
+2) Sections of this binary file are read and parsed and everything is in a very
+defined and logical standardized format.
+
+3) When a file is deleted its contents are not deleted from the disk, like wise
+the record of the file name and location is only marked as "deleted" but is not
+overwritten.
+
+ok thats probably enough for now, just rember..this is all logic, no magic !
+
+On to the sections of a disk.
+
+---------------------  <-- 1 sector  -- Starts at 0
+|  Dos Boot Code     | 
+|____________________| 
+|     FAT #1         | <-- 6 sectors -- Starts at 200h
+|____________________| 
+|     FAT #2         | <-- 6 sectors -- Starts at 1400h
+|____________________| 
+|    Directory       | <-- 8 sectors -- Starts at 2600h  
+|____________________|
+|   Data Section     | <--Remainder of disk -- Starts @ 4200h
+|____________________| 
+
+a) Dos Boot Code - small executable code found on the disk in the first sector
+	1 sector = 512 bytes...512 decimal = 200 hex, this is reserved area that
+        is used to store a system boot loader code if this was a boot disk. If itnt
+        then this code is accessed and this is what pops up the nonSystem disk error
+        message if you boot with the disk in the floppy. This small program is only
+        run by the bios on boot up. I tried to replace it with a small asm hello world
+	but my guess that the first two bytes being EB 3C or in asm Jmp 3c for the 
+        entry point were off..the system just hung..unless even inttrupt functions
+        are not available yet on boot disk? anyway..it appears that for expplorer to 
+        access the disk at all it must parse a small section of the boot track. Here 
+        is the minimum i have found through experiment to be needed to access the disk
+        normally. (so each of these fields must contain data that is parsed in some 
+	manner to access the disk)
+
+00000000   EB 3C 00 00 00 00 00 00  00 00 00 00 02 01 01 00   ë<..............
+00000010   02 E0 00 40 0B F0 09 00  12 00 02 00 00 00 00 00   .à.@.ð..........
+00000020   00 00 00 00 00 00 29 D6  05 E1 B8 00 00 00 00 00   ......)Ö.á¸.....
+00000030   00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ................
+
+b) FAT tables. There are two of these each 6 sectors long. The second one is not read
+ 	unless the first one is damaged. The FAT is more or less a map file here is the
+	FAT table of a disk containing a single file and that files corrosponding
+	directory entry.
+
+FAT Table
+00000200   F0 FF FF FF 0F 00 00 00  00 00 00 00 00 00 00 00   ðÿÿÿ............
+
+Directory Entry
+00002600   48 45 4C 4C 4F 20 20 20  41 53 4D 20 18 7F 71 3C   HELLO   ASM .q<
+00002610   8B 29 8B 29 00 00 C0 46  89 29 02 00 75 00 00 00   ‹)‹)..ÀF‰)..u...
+
+The File Allocation Table (FAT) holds a listing of which directory entries are
+being used. The FAT format is a packed bit layout which means every entry takes
+up 1.5 bytes and the bytes are not contigious. That makes no sense in words i know
+so heres an example. in the FAT table above every 3 bytes is 2 entries. lets look
+at the entry FF 0F 00 (bytes 3-5) when we unpack and swap these bits around (we will
+go into more detail and make a program to do it for us latter) the 2 entries we get
+are FFF and 000. FFF means that this cluster contains the End of File (EOF) marker.
+The 000 value denotes that there is no corrosponding directory entry in the next slot
+yet. 
+
+Since the Directory entry is easier to grasp we will start with that. Here is the
+exerpt from the "DiskDoctor" (note this was written before support for long filenames!)
+
+----------------
+Each directory entry is 32 bytes long: there are 16 entries
+    per sector, laid out so:                 ;These are our values for each over here
+
+         file name          bytes 0-7        ; "HELLO  "
+         extension          bytes 8-10       ; "ASM"
+         attributes         byte 11          ; 20h
+         reserved space     bytes 12-21      ; 18 7F 71 3C 8B 29 8B 29 00 00
+         time stamp         bytes 22-23      ; C0 46
+         date stamp         bytes 24-25      		    ; 89 29
+         starting cluster   bytes 26-27 (an integer)        ; 02 00
+         length (bytes)     bytes 28-31 (a 4-byte integer)  ; 75 00 00 00
+-----------------
+
+If filename > 8 characters then it changes the entry to a long filename format
+If extension > 3 characters then it changes the entry to long filename format
+
+if filename first character is E5h then file has been marked as deleted by windows
+	note that only this first byte is changed! rest of entry is intact. Only 
+	other change on disk is that the FAT table entry has be zeroed.
+
+Attributes our attribute entry is 20h (32 decimal) or 0010 0000 in binary, as far
+        as flags are concerned this means bit 5 is set. below is the flag table
+	from "DiskDoctor"
+-----------------------------
+       bit number 7654 3210     
+our value: 20h -> 0010 0000
+            bit 0 means the file is read only
+            bit 1 means the file is hidden
+            bit 2 means it is a system file
+            bit 3 means it is a volume label, not a file
+            bit 4 means it is a subdirectory
+            bit 5 is an archive bit
+            bits 6 and 7 are unused at present
+--------------------------------
+
+ This shows that this file is marked with the archieve bit set. Goto File properties
+from explorer and the associated checkbox is set. Just for fun i set bits 6 and 7 and
+unset 5. result...file appears but opens as zero length file. setting bit 5 as well 
+had no effect. setting the flags for both subdirectory and archieve made the file
+appear as a folder. when you opened the folder it was full of folders andfiles that
+were named with the contents of the files text..wacky
+
+Starting Cluster is a byte swapped integer mapping which cluster the file begins
+at. Note that this is not the physical cluster layout of the disk. Since the
+beginning of the disk is used for house keeping the data area is said to start 
+at cluster 2 which starts at offset 4200h ! 
+
+our value 02 00 -> byteswap() -> 0002 or cluster 2. The first available data
+cluster on disk starting at byte offset 4200h. 
+
+Filelength: our value = 75h -> 117 dec = character length
+
+Since each sector (cluster) is 200h long. This file fits nicely inside one cluster.
+Since a cluster is the smallest allocatable chunk given out, there will be 125h 
+unused space between the end of this file and the beginning of the next one. Also
+since this file fits all the single cluster the FAT only has to record that the
+beginning cluster pointed to by the directory entry is also the sector containing
+that files End Of File (EOF).
+
+So what happens if a file is longer than one cluster? we know how to find the 
+beginning of it...how do we locate where the rest of the file lies? Well since files
+can be deleted we can not depend on each section of the file being laid out in one
+contigious block. To know where to look next the operating system will go back to the
+File Allocation Table and check to see what cluster holds the next section of the file.
+
+The best way to drill this into your (and my) brain is to do a small experiment
+and see it all happen. Lets save another file to the disk that is several sectors
+big to see how it changes the disk layout.
+
+one file that fits in single cluster
+
+00000200   F0 FF FF FF 0F 00 00 00  00 00 00 00 00 00 00 00   ðÿÿÿ............
+
+
+added another file that is 3 clusters long
+00000200   F0 FF FF FF 4F 00 05 F0  FF 00 00 00 00 00 00 00   ðÿÿÿO..ðÿ.......
+
+directory now looks like 
+
+00002600   48 45 4C 4C 4F 20 20 20  41 53 4D 20 18 7F 71 3C   HELLO   ASM .q<
+00002610   8B 29 8B 29 00 00 C0 46  89 29 02 00 75 00 00 00   ‹)‹)..ÀF‰)..u...
+00002620   4E 4F 4E 41 4D 45 20 20  44 41 54 20 18 54 15 03   NONAME  DAT .T..
+00002630   8D 29 8D 29 00 00 12 03  8D 29 03 00 06 04 00 00   ))....)......
+                                          |____||__________|
+        byte swapped starting cluster = 3___|        |_______FileLength (604h)
+
+from dir entry file size = 604h -> 1540 bytes
+
+raw data: file goes from offset: 4400h -> 4805h -> diff = 405h -> 1029d bytes
+
+file size saved was 1030 bytes 
+
+size on disk = 1,536 bytes ( from explorer properties)
+
+3 sectors = 1536 bytes
+2 sectors = 1024 bytes
+
+using 6 bytes of next sector and shanghied all next sector
+1 cluster = 1 sector
+
+hello.asm start marker =  02 00 -> byteswap() -> 00 02 starts @ offset 4200
+noname.dat start marker = 03 00 -> byteswap() -> 00 03 starts @ offset 4400
+
+
+examine fat entries		
+
+a)   F0 FF FF 00 00 00 00 00  00 00 00 00 00 00 00 00   ðÿÿ.............  
+b)   F0 FF FF FF 0F 00 00 00  00 00 00 00 00 00 00 00   ðÿÿÿ............  
+c)   F0 FF FF FF 4F 00 05 F0  FF 00 00 00 00 00 00 00   ðÿÿÿO..ðÿ.......  
+     
+a) contains no files, first 3 bytes reserved (first 2 entries)
+
+b) contains one file, of the byte FF 0F the zero has yet to be filled it will be
+	part of the next entry for the next file saved (because of the packed order
+	of FAT) so this fat entry is FFF which indicates that the start cluster
+	defined in teh directory entry is also the cluster that contains that files
+	EOF, so not further info is needed on this file.
+
+c) here another file has been added to the disk used above. the file added was
+	1030bytes long. which means it encompasses 3 clusters. The cluster pointed
+	at in directory entry is 03 00 (0003) or the third. then to find the other
+	2 segments of the file we look at the FAT entry for it. 4x 00 05 F0 FF
+	unpacked this = 004 005 FFF. this tells us that the next cluster is 4 then 5
+	and that cluster 5 contains the EOF.      
+
+Now that we see how that works. Lets jump right into a real world example :)
+Below is the FAT to another floppy disk. how many files does this represent? 
+and what clusters can they be foudn at? (if you havent noticed i like to drill
+in the basics and concepts at depth then jump off the deep end :)
+
+Offset      0  1  2  3  4  5  6  7   8  9  A  B  C  D  E  F
+
+00000200   F0 FF FF FF FF FF FF FF  FF FF FF FF FF FF FF FF   ðÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ
+00000210   FF FF FF FF FF 0F 00 01  11 20 01 13 40 01 15 60   ÿÿÿÿÿ.... ..@..`
+00000220   01 17 80 01 19 A0 01 1B  C0 01 1D E0 01 1F 00 02   ..€.. ..À..à....
+00000230   21 20 02 23 40 02 25 60  02 27 80 02 29 A0 02 2B   ! .#@.%`.'€.) .+
+00000240   C0 02 2D E0 02 2F 00 03  31 20 03 33 40 03 35 60   À.-à./..1 .3@.5`
+00000250   03 37 80 03 39 A0 03 3B  C0 03 3D E0 03 3F 00 04   .7€.9 .;À.=à.?..
+00000260   41 20 04 43 40 04 45 60  04 47 80 04 49 A0 04 4B   A .C@.E`.G€.I .K
+00000270   C0 04 4D E0 04 4F 00 05  51 20 05 53 40 05 55 60   À.Mà.O..Q .S@.U`
+00000280   05 57 80 05 59 A0 05 5B  C0 05 5D E0 05 5F 00 06   .W€.Y .[À.]à._..
+00000290   61 20 06 63 40 06 65 60  06 67 80 06 69 A0 06 6B   a .c@.e`.g€.i .k
+000002A0   C0 06 6D E0 06 6F 00 07  71 20 07 73 40 07 75 60   À.mà.o..q .s@.u`
+000002B0   07 77 80 07 79 A0 07 7B  C0 07 7D E0 07 7F 00 08   .w€.y .{À.}à...
+000002C0   81 20 08 83 40 08 85 60  08 87 80 08 89 A0 08 8B    .ƒ@.…`.‡€.‰ .‹
+000002D0   C0 08 8D E0 08 8F 00 09  91 20 09 93 40 09 95 60   À.à...‘ .“@.•`
+000002E0   09 97 80 09 99 A0 09 9B  C0 09 9D E0 09 9F 00 0A   .—€.™ .›À.à.Ÿ..
+000002F0   A1 20 0A A3 40 0A A5 60  0A A7 80 0A A9 A0 0A AB   ¡ .£@.¥`.§€.© .«
+00000300   C0 0A AD E0 0A AF 00 0B  B1 20 0B B3 40 0B B5 60   À.­à.¯..± .³@.µ`
+00000310   0B B7 80 0B B9 A0 0B BB  C0 0B BD E0 0B BF 00 0C   .·€.¹ .»À.½à.¿..
+00000320   C1 20 0C C3 40 0C C5 60  0C C7 80 0C C9 A0 0C CB   Á .Ã@.Å`.Ç€.É .Ë
+00000330   C0 0C CD E0 0C CF 00 0D  D1 20 0D D3 40 0D D5 60   À.Íà.Ï..Ñ .Ó@.Õ`
+00000340   0D D7 80 0D D9 A0 0D DB  C0 0D DD E0 0D DF 00 0E   .×€.Ù .ÛÀ.Ýà.ß..
+00000350   E1 20 0E E3 40 0E E5 60  0E E7 80 0E E9 A0 0E EB   á .ã@.å`.ç€.é .ë
+00000360   C0 0E ED E0 0E EF 00 0F  F1 20 0F F3 40 0F F5 60   À.íà.ï..ñ .ó@.õ`
+00000370   0F F7 80 0F F9 A0 0F FB  C0 0F FD E0 0F FF 0F 00   .÷€.ù .ûÀ.ýà.ÿ
+
+
+Ok the first part of this looks easy
+
+ reserved-----|        |-----2 Single Sector Files
+           |------| |------|       
+00000200   F0 FF FF FF FF FF FF FF  FF FF FF FF FF FF FF FF   ðÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ
+00000210   FF FF FF FF FF 0F 00 01  11 20 01 13 40 01 15 60   ÿÿÿÿÿ.... ..@..`
+
+for all the single sector fiels every 3 FF bytes denotes 2 files
+that brings us to thats 6 files each one cluster from 2-8
+
+noW scan teh large block for where the next FFF EOF marker is. 
+nicely enough it is at the end..so there is only
+one more file to account for but it is a doozie ;) so what clusters can
+it eb foudn in?  we dontknow the start cluster becase thats in the directory
+entry...but form the FAT we can tell it goes from :
+
+-------------
+format refresher AB CD EF -> DAB EFC
+
+also note that since every 3 bytes = 2 files, and 16 is not divisible by 3
+that you cannot get into the easy pattern of relating byte position in editor
+to which conversion you are on! 
+-------------
+
+0F 00 01 -> 00F, 010
+11 20 01 -> 011, 012
+13 40 01 -> 013, 014
+15 60 01 -> 015, 016
+17 80 01 -> 017, 018
+
+we could go on for quite some time...but i think it is time to automate this
+yes no?
+
+so basic logic goes like this...grab hex block, since every 3 bytes carries 2 entries
+makes sense to use this fact to simplify the parsing.Basic logic outline:
+
+dim b1,b2,b3 as string
+'pattern we wish to accomplish 
+'    AB CD EF -> DAB EFC
+'    b1 b2 b3 LoWord = right most character of byte (hex format) converse for HighWord
+for i=0 to ubound(byte) step 3
+	b1=byte(i)
+	b2=byte(i+1)
+	b3=byte(i+3)
+
+	entry1 = LoWord(b2) & b1
+        entry2 = b3 & HiWord(b2)
+next
+
+see the sample app for full working version. anyway we find the file contigeous 
+from 00F - 0FE
+
+since this file is not fragmented at all...even if teh file had been deleted 
+and the fat entry wiped...we could have recovered the file in its entirity from
+disk knowing only the start file offset found in the remainder of the directory entry.
+(rember only the first byte of the directory entry is overwritten when a file is
+deleted and none of the data is wiped from disk!) (or didnt we get that far yet?)

@@ -488,10 +488,17 @@ End Sub
 
 Private Sub txthWnd_Change()
     Dim hwnd As Long
+    
     If txthWnd = Empty Then txthWnd = 0
     
+    On Error Resume Next
     
     hwnd = CLng(txthWnd)
+    If Err.Number <> 0 Then
+        Err.Clear
+        hwnd = CLng("&h" & txthWnd)
+        If Err.Number <> 0 Then Exit Sub
+    End If
     
     lblCaption = GetCaption(hwnd)
     lblClass = GetClass(hwnd)

@@ -1,0 +1,8 @@
+frmMain = 26, 14, 713, 594, , 26, 20, 640, 460, C
+clsCmnDlg = 0, 0, 0, 0, C
+clsCollection = 132, 132, 613, 580, 
+clsFileSystem = 120, 93, 548, 433, 
+clsTreeviewManager = 132, 132, 584, 552, 
+clsFileStream = 21, 66, 667, 432, 
+modGeneral = 16, 15, 659, 548, 
+modLimitResize = 66, 66, 621, 484, Z

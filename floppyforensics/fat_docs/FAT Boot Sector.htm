@@ -1,0 +1,845 @@
+<HTML>
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=koi8-r">
+   <META NAME="Author" CONTENT="Alex Verstak">
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.04 [en] (Win95; I) [Netscape]">
+   <TITLE>FAT Boot Sector</TITLE>
+</HEAD>
+<!--Begin JavaScript roadmap code.  If editing downloaded HTML source, delete
+ this portion.-->
+
+<script language="JavaScript">
+<!--
+
+function TripodShowPopup()
+{
+   var bName=navigator.appName;
+   var bVer=parseInt(navigator.appVersion);
+   var now = new Date();
+   var popupURL = "/adm/popup/roadmap.shtml?"+"member_name=averstak&path=fatdox&client_ip=162.40.25.21&ts=1012952357&ad_type=POPUP&category=net&search_string=floppy&id=b965c027a4c309f09fca1f09f72f47a3";
+   var popupName = "TripodPopup";
+
+   if (bName=="Netscape" && bVer<=3)
+   {
+      var popup = window.open("", popupName,'toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=0,resizable=0,width=614,height=129');
+   }
+   else
+   {
+      var popup = window.open("", popupName,'toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=0,resizable=0,width=604,height=112');
+   }
+   popup.location = popupURL;
+}
+
+if(window.parent==window)
+{
+   TripodShowPopup();
+}
+
+// -->
+</script>
+
+<script language="JavaScript1.2">
+<!--
+
+function changeOpenFunction()
+{
+   var original_window_open = window.open;
+   function new_open_function(url, name, features, replace)
+   {
+      if(name != "TripodPopup")
+         return original_window_open(url, name, features, replace);
+   }
+   window.open = new_open_function;
+}
+var bName = navigator.appName;
+
+if(bName != "Netscape")
+   changeOpenFunction();
+
+// -->
+</script>
+<!-- TEMPORARY POP UNDER -->
+<script language="JavaScript">
+<!--
+function showNow(scale)
+  {
+	var expdate = new Date ();
+	var surveyCookieName = "MMPOPUNDER3";
+ 	var percentOfferedSurvey = 100;
+ 	var surveyLocation = "http://popup.matchmaker.com/titan2/lycos_now.html";
+ 	var popupNewWindow = true;
+
+  	expdate.setTime (expdate.getTime() + (24 * 60 * 60 * 1000));
+	var stored_value = GetCookie(surveyCookieName);
+	if (stored_value == null)
+  	{
+  	        SetCookie(surveyCookieName, "alreadyOffered", expdate, "", "");
+                  nowWin = window.open(surveyLocation,'Now','height=400,width=600,toolbar=no,directories=no,status=no,menubar=no,scrollbars=no,resizable=no');
+                  nowWin.blur()
+				  window.focus()
+  	}
+   }
+
+function SetCookie (name,value,expires,path,domain,secure)
+  {
+          document.cookie = name + "=" + escape (value) +
+          ((expires) ? "; expires=" + expires.toGMTString() : "") +
+          ((path) ? "; path=" + path : "") +
+          ((domain) ? "; domain=" + domain : "") +
+          ((secure) ? "; secure" : "");
+  }
+
+function getCookieVal (offset)
+  {
+          var endstr = document.cookie.indexOf (";", offset);
+          if (endstr == -1)
+                  endstr = document.cookie.length;
+          return unescape(document.cookie.substring(offset, endstr));
+  }
+
+function GetCookie (name)
+  {
+          var arg = name + "=";
+          var alen = arg.length;
+          var clen = document.cookie.length;
+          if( (document.cookie == null) || (document.cookie.length == null))
+          {
+                  return null;
+          }
+          var i = 0;
+          while (i < clen)
+          {
+                  var j = i + alen;
+                  if (document.cookie.substring(i, j) == arg)
+                          return getCookieVal (j);
+                  i = document.cookie.indexOf(" ", i) + 1;
+                  if (i == 0) break;
+          }
+         return null;
+  }
+
+showNow();
+//-->
+</script>
+</center>
+
+
+
+<!--End inserted JavaScript code.-->
+<BODY>
+
+<CENTER>
+<H1>
+FAT Boot Sector</H1></CENTER>
+
+<HR WIDTH="100%">
+<H2>
+Introduction</H2>
+This paper describes the FAT boot sector. I will try to unify the boot
+sectors of the FAT32, FAT16, and FAT12 file systems.
+<H2>
+Structure</H2>
+Boot sector is always the very first sector in the partition. Validity
+check is performed by comparing the 16 bit word at offset <TT>1FE</TT>
+to <TT>AA55</TT>. For FAT systems, this sector always contains the Bios
+Parameter Block (BPB) at offset <TT>0B</TT>. The structure of the boot
+sector is below.
+<BR>&nbsp;
+<TABLE BORDER >
+<TR>
+<TD><I>Offset in Boot Sector</I></TD>
+
+<TD><I>Length in Bytes</I></TD>
+
+<TD><I>Mnemonic</I></TD>
+</TR>
+
+<TR>
+<TD><TT>03</TT></TD>
+
+<TD><TT>8</TT></TD>
+
+<TD><TT><A HREF="#oem">OEM_Identifier</A></TT></TD>
+</TR>
+
+<TR>
+<TD><TT>0B</TT></TD>
+
+<TD><TT>2</TT></TD>
+
+<TD><TT><A HREF="#bps">BytesPerSector</A></TT></TD>
+</TR>
+
+<TR>
+<TD><TT>0D</TT></TD>
+
+<TD><TT>1</TT></TD>
+
+<TD><TT><A HREF="#spc">SectorsPerCluster</A></TT></TD>
+</TR>
+
+<TR>
+<TD><TT>0E</TT></TD>
+
+<TD><TT>2</TT></TD>
+
+<TD><TT><A HREF="#rs">ReservedSectors</A></TT></TD>
+</TR>
+
+<TR>
+<TD><TT>10</TT></TD>
+
+<TD><TT>1</TT></TD>
+
+<TD><TT><A HREF="#nf">NumberOfFATs</A></TT></TD>
+</TR>
+
+<TR>
+<TD><TT>11</TT></TD>
+
+<TD><TT>2</TT></TD>
+
+<TD><TT><A HREF="#re">RootEntries</A></TT></TD>
+</TR>
+
+<TR>
+<TD><TT>13</TT></TD>
+
+<TD><TT>2</TT></TD>
+
+<TD><TT><A HREF="#ns">NumberOfSectors</A></TT></TD>
+</TR>
+
+<TR>
+<TD><TT>15</TT></TD>
+
+<TD><TT>1</TT></TD>
+
+<TD><TT><A HREF="#md">MediaDescriptor</A></TT></TD>
+</TR>
+
+<TR>
+<TD><TT>16</TT></TD>
+
+<TD><TT>2</TT></TD>
+
+<TD><TT><A HREF="#spf">SectorsPerFAT</A></TT></TD>
+</TR>
+
+<TR>
+<TD><TT>18</TT></TD>
+
+<TD><TT>2</TT></TD>
+
+<TD><TT><A HREF="#sph">SectorsPerHead</A></TT></TD>
+</TR>
+
+<TR>
+<TD><TT>1A</TT></TD>
+
+<TD><TT>2</TT></TD>
+
+<TD><TT><A HREF="#sph">HeadsPerCylinder</A></TT></TD>
+</TR>
+
+<TR>
+<TD><TT>1C</TT></TD>
+
+<TD><TT>4</TT></TD>
+
+<TD><TT><A HREF="#hs">HiddenSectors</A></TT></TD>
+</TR>
+
+<TR>
+<TD><TT>20</TT></TD>
+
+<TD><TT>4</TT></TD>
+
+<TD><TT><A HREF="#ns">BigNumberOfSectors</A></TT></TD>
+</TR>
+
+<TR>
+<TD><TT>24</TT></TD>
+
+<TD><TT>4</TT></TD>
+
+<TD><TT><A HREF="#spf">BigSectorsPerFAT</A></TT></TD>
+</TR>
+
+<TR>
+<TD><TT>28</TT></TD>
+
+<TD><TT>2</TT></TD>
+
+<TD><TT><A HREF="#ef">ExtFlags</A></TT></TD>
+</TR>
+
+<TR>
+<TD><TT>2A</TT></TD>
+
+<TD><TT>2</TT></TD>
+
+<TD><TT><A HREF="#fv">FSVersion</A></TT></TD>
+</TR>
+
+<TR>
+<TD><TT>2C</TT></TD>
+
+<TD><TT>4</TT></TD>
+
+<TD><TT><A HREF="#rds">RootDirectoryStart</A></TT></TD>
+</TR>
+
+<TR>
+<TD><TT>30</TT></TD>
+
+<TD><TT>2</TT></TD>
+
+<TD><TT><A HREF="#fis">FSInfoSector</A></TT></TD>
+</TR>
+
+<TR>
+<TD><TT>32</TT></TD>
+
+<TD><TT>2</TT></TD>
+
+<TD><TT><A HREF="#bbs">BackupBootSector</A></TT></TD>
+</TR>
+
+<TR>
+<TD><TT>34</TT></TD>
+
+<TD><TT>12d</TT></TD>
+
+<TD><TT>Reserved</TT></TD>
+</TR>
+</TABLE>
+
+
+<P><A NAME="oem"></A><TT>OEM_Identifier</TT> is the eight-byte ASCII string
+that identifies the system that formatted the disk. All eight characters
+are meaningful. Spaces or zeroes are appended if the name is less than
+eight characters long. As any other OEM name, this string is nice to display
+near to the other disk information, but it is absolutely useless for any
+other purpose.
+
+<P><A NAME="bps"></A><TT>BytesPerSector</TT> is how many bytes long the
+physical sector is. All disks I have ever seen contained 512 in this field.
+The gossips are, DOS supports disks with different sector sizes. Other
+gossips are, early versions of DOS silently set this field to 512 and ignored
+whatever the original value was. Anyway, as of today, you will not loose
+much if you compare this value to 512 and refuse to work with the disks
+that have a different sector size.
+
+<P><A NAME="spc"></A><TT>SectorsPerCluster</TT> is how many sectors are
+in one logical cluster. What is cluster was described earlier. This value
+should not be zero.
+
+<P><A NAME="rs"></A><TT>ReservedSectors</TT> are reserved, starting from
+the LBA sector <TT>(0)</TT> relative to current partition. LBA <TT>(ReservedSectors)</TT>
+is the beginning of the first FAT. For FAT12 and FAT16 this value is usually
+1. For FAT32 it is 20h. At least one sector must always be reserved.
+
+<P><A NAME="nf"></A><TT>NumberOfFATs</TT> is the number of File Allocation
+Tables. This value is usually two. FATs are consecutive on the disk: the
+second copy of FAT goes right after the first copy. At least one copy of
+FAT should be present.
+
+<P><A NAME="re"></A><TT>RootEntries</TT> contains the number of the entries
+in the root directory if root directory is fixed. It is zero if the root
+directory is not fixed. FAT32 disks should contain zero in this field,
+indicating that the root directory can be arbitrarily long. Otherwise,
+this field usually contains 512. Each directory entry takes up 32 bytes.
+To avoid wasting space, <TT>RootEntries*32</TT> should be divisible by
+<TT>BytesPerSector</TT>.
+
+<P><A NAME="ns"></A><TT>NumberOfSectors</TT> is the total number of sectors
+on the disk. If the number of sectors is greater than 65535, then this
+field is set to zero and the dword at <TT>BigNumberOfSectors</TT> contains
+the actual number of sectors. By <TT>NumberOfSectors</TT> I will refer
+to that of <TT>NumberOfSectors</TT> and <TT>BigNumberOfSectors</TT>, which
+is used. Note that this field should contain the same or lesser value as
+the corresponding field in the partition table. If the values are not equal,
+the lesser of them should be used. <TT>NumberOfSectors</TT> should be large
+enough to contain at least the reserved sectors, all FAT copies, and the
+root directory, if any. Disk layout is described <A HREF="#dl">below</A>.
+
+<P><A NAME="md"></A><TT>MediaDescriptor</TT> describes the device:
+<BR>&nbsp;
+<TABLE BORDER >
+<TR>
+<TD><I>Value</I></TD>
+
+<TD><I>DOS version</I></TD>
+
+<TD><I>Meaning</I></TD>
+</TR>
+
+<TR>
+<TD><TT>FF</TT></TD>
+
+<TD><TT>1.1</TT></TD>
+
+<TD><TT>5 1/4 floppy, 320KB</TT></TD>
+</TR>
+
+<TR>
+<TD><TT>FE</TT></TD>
+
+<TD><TT>1.0</TT></TD>
+
+<TD><TT>5 1/4 floppy, 160KB</TT></TD>
+</TR>
+
+<TR>
+<TD><TT>FD</TT></TD>
+
+<TD><TT>2.0</TT></TD>
+
+<TD><TT>5 1/4 floppy, 360KB</TT></TD>
+</TR>
+
+<TR>
+<TD><TT>FC</TT></TD>
+
+<TD><TT>2.0</TT></TD>
+
+<TD><TT>5 1/4 floppy, 180KB</TT></TD>
+</TR>
+
+<TR>
+<TD><TT>F9</TT></TD>
+
+<TD><TT>3.0</TT></TD>
+
+<TD><TT>5 1/4 floppy, 1.2MB</TT></TD>
+</TR>
+
+<TR>
+<TD><TT>F9</TT></TD>
+
+<TD><TT>3.2</TT></TD>
+
+<TD><TT>3 1/2 floppy, 720KB</TT></TD>
+</TR>
+
+<TR>
+<TD><TT>F8</TT></TD>
+
+<TD><TT>2.0</TT></TD>
+
+<TD><TT>Any Hard Drive</TT></TD>
+</TR>
+
+<TR>
+<TD><TT>F0</TT></TD>
+
+<TD><TT>3.3</TT></TD>
+
+<TD><TT>3 1/2 floppy, 1.44MB</TT></TD>
+</TR>
+</TABLE>
+
+
+<P>As of today, no other values are defined.
+
+<P><A NAME="spf"></A><TT>SectorsPerFAT</TT> contains the number of sectors
+in one FAT. This field is zero for FAT32 drives, and <TT>BigSectorsPerFAT</TT>
+contains the actual value. Note that the Microsoft FAT32 boot loader will
+not work with the FAT32 drives if <TT>SectorsPerFAT</TT> is not zero, and
+FAT12 and FAT16 loaders will not work with the drives if <TT>SectorsPerFAT</TT>
+is zero. As with <TT>NumberOfSectors</TT>, by <TT>SectorsPerFAT</TT> I
+will mean the appropriate value. It goes without saying, FAT should be
+long enough to contain the information about all clusters on the disk.
+
+<P><A NAME="sph"></A><TT>SectorsPerHead</TT> is the number of sectors grouped
+under one head. <TT>HeadsPerCylinder</TT> is also what you think it is.
+If this partition is a CHS partition, these values must be the same as
+those returned by BIOS. If they are not the same, the disk was misconfigured
+and the partition should not be used. Note that the Microsoft boot loader
+alteres the BIOS Diskette Parameters table by setting the <TT>SectorsPerTrack</TT>
+field of this structure to <TT>SectorsPerHead</TT> read from the boot disk.
+The values in these fields do not matter for LBA partitions.
+
+<P><A NAME="hs"></A><TT>HiddenSectors</TT> is the number of sectors between
+the beginning of this partition and the partition table. This field should
+be the same as "number of sectors preceding the partition" in the partition
+table. Note that it is not necessarily the physical LBA address of the
+first sector because there exist secondary partitions. If <TT>HiddenSectors</TT>
+is not the same as in the partition table, boot sector was corrupted and
+the partition should not be used. Also note that the high word contains
+garbage for old versions of DOS.
+
+<P><A NAME="ef"></A><TT>ExtFlags</TT>, and all fields described below,
+are defined only for FAT32 disks. They are defined differently for FAT12
+and FAT16 (that issue is discussed below). If the left-most bit of <TT>ExtFlags</TT>
+value is set then only the <I>active</I> copy of FAT is changed. If the
+bit is cleared then FATs will be kept in synchronization. Disk analyzing
+programs should set this bit only if some copies of the FAT contain defective
+sectors. Low four bits define which copy should be active. As you see,
+only the first sixteen copies of the FAT may be selected active, so the
+disk is usable if and only if among the first sixteen copies at least one
+is usable. For this flag, FAT numbers start from zero. Sanity check insures
+that the active FAT is less than <TT>NumberOfFATs</TT>.
+
+<P><A NAME="fv"></A><TT>FSVersion</TT> is the version of the file system.
+The high byte is the major version, the low byte is the minor version.
+Both are set to zero on my Windows 95 OSR2. I do not think that this value
+should be checked. However, the Microsoft boot loader does check it <I>in
+certain cases</I>, and it complains if it is not zero.
+
+<P><A NAME="rds"></A><TT>RootDirectoryStart</TT> contains the number of
+the first cluster for the root directory. Yes, finally the root directory
+became stored like any other directory, in the cluster chain. This also
+implies that it may grow as needed. The value in this field should be at
+least two. It is two on my system.
+
+<P><A NAME="fis"></A><TT>FSInfoSector</TT> is the sector number for the
+file system information sector. This sector is new to FAT32. Its structure
+is below:
+<BR>&nbsp;
+<TABLE BORDER >
+<TR>
+<TD><I>Offset in Sector</I></TD>
+
+<TD><I>Size</I></TD>
+
+<TD><I>Meaning</I></TD>
+</TR>
+
+<TR>
+<TD><TT>00</TT></TD>
+
+<TD><TT>4</TT></TD>
+
+<TD><TT>Signature, should be 41615252h (?)</TT></TD>
+</TR>
+
+<TR>
+<TD><TT>1E4</TT></TD>
+
+<TD><TT>4</TT></TD>
+
+<TD><TT>Signature, should be 61417272h</TT></TD>
+</TR>
+
+<TR>
+<TD><TT>1E8</TT></TD>
+
+<TD><TT>4</TT></TD>
+
+<TD><TT>Number of free clusters on the drive, or -1 if unknown</TT></TD>
+</TR>
+
+<TR>
+<TD><TT>1EC</TT></TD>
+
+<TD><TT>4</TT></TD>
+
+<TD><TT>Number of the most recently allocated cluster</TT></TD>
+</TR>
+
+<TR>
+<TD><TT>1F0</TT></TD>
+
+<TD><TT>12d</TT></TD>
+
+<TD><TT>Reserved</TT></TD>
+</TR>
+
+<TR>
+<TD><TT>1FE</TT></TD>
+
+<TD><TT>2</TT></TD>
+
+<TD><TT>Signature AA55</TT></TD>
+</TR>
+</TABLE>
+
+
+<P>All the other bytes are set to zero. As you see, these values are introduced
+to improve performance. Make sure that <TT>FSInfoSector</TT> is at least
+one and it lies within the reserved disk area. Also make sure that this
+value is not the same as <TT>BackupBootSector</TT>. If it does not satisfy
+these conditions, do not use this sector, but the file system should still
+be usable. Do not use the information in this sector if its signature is
+incorrect. Note that only the second signature is documented by Microsoft.
+Normally, the number of free clusters is checked only by special disk analysis
+programs. <TT>FSInfoSector</TT> is usually one.
+
+<P><A NAME="bbs"></A><TT>BackupBootSector</TT> is the sector number for
+the backup copy of the boot sector. This copy can be used if the main copy
+was corrupted. It is also nice to compare the two copies on startup. If
+they do not match, a warning should be issued. They may not be in tact
+because of corruption or a boot virus. If this field contains zero or the
+number greater than or equal to <TT>ReservedSectors</TT> or the same value
+as <TT>FSInfoSector</TT>, the backup sector should not be used.
+<BR>&nbsp;
+<UL>My experience says, there are two complete copies of the boot information.
+The first copy starts from the very first sector in the partition and is
+three sectors long. The first sector is being described now. The second
+sector is usually the FS Information Sector, as described above. The third
+sector is some extra code for the boot loader. The third sector also contains
+the <TT>AA55</TT> signature at <TT>1FE</TT>. Then, starting from <TT>BackupBootSector</TT>,
+goes another triple. The first and the third sectors of this triple are
+identical to those of the main one. The second sector also contains the
+FS Information Sector, but it is not kept in synchronization with the main
+FS Information Sector. It is not documented by Microsoft. Its "Number of
+Free Clusters" is set to <TT>-1</TT> and "The Most Recently Allocated Cluster"
+is two, which suggests that it was touched only by the formatting program.
+All the other reserved sectors contain zeroes.</UL>
+
+<H2>
+Notes</H2>
+Note that some of the values in the boot sector have a different meaning
+in FAT12/16 systems as compared to the FAT32 system. These fields form
+the Extended BIOS Parameter Block, or EBPB. EBPB is the same for FAT12/16
+and FAT32, but it starts from the different offsets in the boot sector.
+For the sake of completeness I will describe it here:
+<BR>&nbsp;
+<TABLE BORDER >
+<TR>
+<TD><I>Offset for FAT12/16</I></TD>
+
+<TD><I>Offset for FAT32</I></TD>
+
+<TD><I>Length in Bytes</I></TD>
+
+<TD><I>Meaning</I></TD>
+</TR>
+
+<TR>
+<TD><TT>24</TT></TD>
+
+<TD><TT>40</TT></TD>
+
+<TD><TT>1</TT></TD>
+
+<TD><TT>BIOS drive number</TT></TD>
+</TR>
+
+<TR>
+<TD><TT>25</TT></TD>
+
+<TD><TT>41</TT></TD>
+
+<TD><TT>1</TT></TD>
+
+<TD><TT>Reserved</TT></TD>
+</TR>
+
+<TR>
+<TD><TT>26</TT></TD>
+
+<TD><TT>42</TT></TD>
+
+<TD><TT>1</TT></TD>
+
+<TD><TT>Extended Boot Record signature = 29h</TT></TD>
+</TR>
+
+<TR>
+<TD><TT>27</TT></TD>
+
+<TD><TT>43</TT></TD>
+
+<TD><TT>4</TT></TD>
+
+<TD><TT>Serial Number</TT></TD>
+</TR>
+
+<TR>
+<TD><TT>2B</TT></TD>
+
+<TD><TT>47</TT></TD>
+
+<TD><TT>11</TT></TD>
+
+<TD><TT>Volume label</TT></TD>
+</TR>
+
+<TR>
+<TD><TT>36</TT></TD>
+
+<TD><TT>52</TT></TD>
+
+<TD><TT>8</TT></TD>
+
+<TD><TT>System Identifier (FAT12, FAT16, or FAT32)</TT></TD>
+</TR>
+</TABLE>
+
+
+<P>In my humble opinion, you do not need these fields even for FAT12 or
+FAT16. However, there is one compatibility issue. If you have detected
+that FAT12 or FAT16 is used, and the extended boot record signature is
+not <TT>29h</TT>, you should ignore all the values in the BPB starting
+from the offset <TT>1E</TT>. This is not a typo: <TT>HiddenSectors</TT>
+is really split by half, and if the extended boot record signature is incorrect
+then only the lower word of <TT>HiddenSectors</TT> is valid.
+
+<P>Sanity check might also insure that System Identifier is correct for
+the detected file system. It should be <TT>"FAT12",</TT> <TT>"FAT16"</TT>,
+or <TT>"FAT32"</TT> according to the file system. Strings are padded with
+spaces to fit in eight bytes.
+
+<P>Finally, the presense of the EBPB in FAT32 is not documented by Microsoft.
+
+<P><A NAME="dl"></A>Now it is high time to explain how clusters are mapped
+to sectors. First, consider the layout of the FAT disk:
+<BR>&nbsp;
+<TABLE BORDER >
+<TR>
+<TD><I>LBA Location</I></TD>
+
+<TD><I>Length in Sectors</I></TD>
+
+<TD><I>Description</I></TD>
+</TR>
+
+<TR>
+<TD><TT>0</TT></TD>
+
+<TD><TT>ReservedSectors</TT></TD>
+
+<TD><TT>Boot Sector(s), File System Info Sector</TT></TD>
+</TR>
+
+<TR>
+<TD><TT>ReservedSectors</TT></TD>
+
+<TD><TT>NumberOfFATs*SectorsPerFAT</TT></TD>
+
+<TD><TT>File Allocation Tables</TT></TD>
+</TR>
+
+<TR>
+<TD><TT>RootStart *</TT></TD>
+
+<TD><TT>(RootEntries*32)/BytesPerSector</TT></TD>
+
+<TD><TT>Root Directory, if any</TT></TD>
+</TR>
+
+<TR>
+<TD><TT>ClustersStart</TT></TD>
+
+<TD><TT>NumberOfClusters*SectorsPerCluster</TT></TD>
+
+<TD><TT>Data Clusters</TT></TD>
+</TR>
+</TABLE>
+* Note: <TT>RootStart</TT> does not make sense for FAT32 partitions. However,
+the formulae below are still valid for FAT32.
+
+<P>Some of the values in the table are in the BPB. Let us calculate the
+rest of them:
+
+<P><TT>RootStart=ReservedSectors+NumberOfFATs*SectorsPerFAT</TT>
+<BR><TT>ClustersStart=RootStart+(RootEntries*32) div BytesPerSector</TT>
+<BR><TT>* Note: if (RootEntries*32) mod BytesPerSector then ClustersStart=ClustersStart+1</TT>
+<BR><TT>NumberOfClusters=2+(NumberOfSectors-ClustersStart) div SectorsPerCluster</TT>
+
+<P>To convert cluster address to LBA address use the formula:
+
+<P><TT>LBA=ClustersStart+(Cluster-2)*SectorsPerCluster</TT>
+
+<P>Now we are ready to detect which file system is used.
+<UL>
+<LI>
+If <TT>NumberOfClusters&lt;4087</TT> then FAT12 is used.</LI>
+
+<LI>
+If <TT>4087&lt;=NumberOfClusters&lt;65,527</TT> then FAT16 is used.</LI>
+
+<LI>
+If <TT>65,527&lt;=NumberOfClusters&lt;268,435,457</TT> then FAT32 is used.</LI>
+
+<LI>
+Otherwise, none of the above is used.</LI>
+</UL>
+I fairly warn you: I have not yet found two sources that agree on these
+values. So, be careful if the number of clusters is close to the border
+value. One might have noticed that the maximum <TT>NumberOfClusters</TT>
+for FAT32 looks odd. Since only 28 of 32 bits are currently used, the FAT32
+partition can have no more than 268,435,456 clusters. Looking at <TT>NumberOfClusters</TT>
+is the <B>only</B> recommended by Microsoft way of detecting the FAT entry
+size.
+
+<P>Since the type of the file system depends on the cluster size, which
+can be set arbitrarily by the formatting program, let me introduce the
+Microsoft recommendations. Note that these are only guidelines. The partition
+size is <B>not</B> used directly to determine the FAT type. It is first
+converted to <TT>NumberOfClusters</TT> as described above.
+<BR>&nbsp;
+<TABLE BORDER >
+<TR>
+<TD><I>Partition Size</I></TD>
+
+<TD><I>Type of FAT</I></TD>
+</TR>
+
+<TR>
+<TD><TT>10MB or less</TT></TD>
+
+<TD><TT>FAT12</TT></TD>
+</TR>
+
+<TR>
+<TD><TT>10MB through 512MB (?)</TT></TD>
+
+<TD><TT>FAT16</TT></TD>
+</TR>
+
+<TR>
+<TD><TT>512MB (?) through 2TB</TT></TD>
+
+<TD><TT>FAT32</TT></TD>
+</TR>
+</TABLE>
+&nbsp;
+<BR>The following table contains the ranges for the partition sizes. They
+do overlap.
+<BR>&nbsp;
+<TABLE BORDER >
+<TR>
+<TD><I>Min Partition Size</I></TD>
+
+<TD><I>Max Partition Size</I></TD>
+
+<TD><I>Type of FAT</I></TD>
+</TR>
+
+<TR>
+<TD><TT>1.5KB</TT></TD>
+
+<TD><TT>510.75MB</TT></TD>
+
+<TD><TT>FAT12</TT></TD>
+</TR>
+
+<TR>
+<TD><TT>2.0435MB</TT></TD>
+
+<TD><TT>8190.75MB</TT></TD>
+
+<TD><TT>FAT16</TT></TD>
+</TR>
+
+<TR>
+<TD><TT>~32MB</TT></TD>
+
+<TD><TT>32TB</TT></TD>
+
+<TD><TT>FAT32</TT></TD>
+</TR>
+</TABLE>
+&nbsp;
+
+<P>
+<HR WIDTH="100%">
+<BR>Author:&nbsp; <A HREF="mailto:averstak@erols.com">Alex Verstak</A>&nbsp;
+3/10/1998
+<BR>&nbsp;
+</BODY>
+</HTML>

@@ -10,6 +10,7 @@ Form=frmConversion2.frm
 Form=frmListSnag.frm
 Object={831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0; mscomctl.ocx
 UserControl=ucFilterList.ctl
+Object={3B7C8863-D78F-101B-B9B5-04021C009402}#1.2#0; RICHTX32.OCX
 ResFile32="winhack.RES"
 IconForm="frmWinHack"
 Startup="frmWinHack"

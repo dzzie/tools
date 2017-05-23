@@ -1,0 +1,563 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+<TITLE> Recover Fixed/Floppy Disk - FAQ </TITLE>
+<META content="text/html; charset=windows-1252" http-equiv=Content-Type>
+
+<!-- Recover Fixed/Floppy Disk FAQ, Data Recovery FAQ, Recover Fixed/Floppy Disk - How-to, data recovery - How-to, disk recovery - How-to, safeguarding data - How-to, freeware data recovery software, shareware data recovery software, How to recover lost data, How to recover deleted files, recovering deleted files, How to safeguard data, How to deal with erased FAT, How to deal with corrupt FAT, How to deal with damaged FAT, How to deal with erased Directory, How to deal with corrupt Directory, How to deal with damaged Directory, How to deal with erased Boot code, How to deal with bad Boot Sector, How to deal with damaged Boot, using DEBUG for data recovery, DEBUG for the expert, using DEBUG.EXE to read disk sectors, DEBUG.EXE as helper program for Recover Fixed/Floppy Disk, analysing floppy disk with DEBUG, using DEBUG to explore floppy disks, Dealing with erased FAT, Dealing with corrupt FAT, Dealing with damaged FAT, Dealing with erased Directory, Dealing with corrupt Directory, Dealing with damaged Directory, Dealing with erased Boot code, Dealing with bad Boot Sector, Dealing with damaged Boot, fixfat, fixing errors in FAT, using other FAT copy, analysing FAT, recovery software for Hard Disks, data recovery software for Floppy Disks, FAT, FAT copy, bad FAT copy, bad FAT copies, damaged FAT, FAT errors, FAT read errors, disk errors, 16 bit FAT, 12 bit FAT, FAT utility, data, recovery, disk, drive, hard drive, floppy drive, disk drive, freeware, shareware, diagnostic software, sector, cluster, utility, recover, floppy disk, hard disk, disk tools, File Allocation Table, disk utilities, solution, disk problems, avoiding disk problems in future, DOS utility, FAT file system, easiest data recovery software, sector level data recovery software, cluster level data recovery software -->
+
+<META NAME=Keywords CONTENT="Recover Fixed/Floppy Disk FAQ, Data Recovery FAQ, Recover Fixed/Floppy Disk - How-to, data recovery - How-to, disk recovery - How-to, safeguarding data - How-to, freeware data recovery software, shareware data recovery software, How to recover lost data, How to recover deleted files, recovering deleted files, How to safeguard data, How to deal with erased FAT, How to deal with corrupt FAT, How to deal with damaged FAT, How to deal with erased Directory, How to deal with corrupt Directory, How to deal with damaged Directory, How to deal with erased Boot code, How to deal with bad Boot Sector, How to deal with damaged Boot, using DEBUG for data recovery, DEBUG for the expert, using DEBUG.EXE to read disk sectors, DEBUG.EXE as helper program for Recover Fixed/Floppy Disk, analysing floppy disk with DEBUG, using DEBUG to explore floppy disks,
+Dealing with erased FAT, Dealing with corrupt FAT, Dealing with damaged FAT, Dealing with erased Directory, Dealing with corrupt Directory, Dealing with damaged Directory, Dealing with erased Boot code, Dealing with bad Boot Sector, Dealing with damaged Boot, fixfat, fixing errors in FAT, using other FAT copy, analysing FAT, recovery software for Hard Disks, data recovery software for Floppy Disks, FAT, FAT copy, bad FAT copy, bad FAT copies, damaged FAT, FAT errors, FAT read errors, disk errors, 16 bit FAT, 12 bit FAT, FAT utility, data, recovery, disk, drive, hard drive, floppy drive, disk drive, freeware, shareware, diagnostic software, sector, cluster, utility, recover, floppy disk, hard disk, disk tools, File Allocation Table, disk utilities, solution, disk problems, avoiding disk problems in future, DOS utility, FAT file system, easiest data recovery software, sector level data recovery software, cluster level data recovery software">
+
+<META NAME=Description CONTENT="Recover Fixed/Floppy Disk FAQ simplifies data recovery jobs, and explains how use the info displayed by Recover Fixed/Floppy Disk">
+
+<META NAME=KEYS CONTENT="Recover Fixed/Floppy Disk FAQ, Data Recovery FAQ, Recover Fixed/Floppy Disk - How-to, data recovery - How-to, disk recovery - How-to, safeguarding data - How-to, freeware data recovery software, shareware data recovery software, How to recover lost data, How to recover deleted files, recovering deleted files, How to safeguard data, How to deal with erased FAT, How to deal with corrupt FAT, How to deal with damaged FAT, How to deal with erased Directory, How to deal with corrupt Directory, How to deal with damaged Directory, How to deal with erased Boot code, How to deal with bad Boot Sector, How to deal with damaged Boot, using DEBUG for data recovery, DEBUG for the expert, using DEBUG.EXE to read disk sectors, DEBUG.EXE as helper program for Recover Fixed/Floppy Disk, analysing floppy disk with DEBUG, using DEBUG to explore floppy disks, Dealing with erased FAT, Dealing with corrupt FAT, Dealing with damaged FAT, Dealing with erased Directory, Dealing with corrupt Directory, Dealing with damaged Directory, Dealing with erased Boot code, Dealing with bad Boot Sector, Dealing with damaged Boot, fixfat, fixing errors in FAT, using other FAT copy, analysing FAT, recovery software for Hard Disks, data recovery software for Floppy Disks, FAT, FAT copy, bad FAT copy, bad FAT copies, damaged FAT, FAT errors, FAT read errors, disk errors, 16 bit FAT, 12 bit FAT, FAT utility, data, recovery, disk, drive, hard drive, floppy drive, disk drive, freeware, shareware, diagnostic software, sector, cluster, utility, recover, floppy disk, hard disk, disk tools, File Allocation Table, disk utilities, solution, disk problems, avoiding disk problems in future, DOS utility, FAT file system, easiest data recovery software, sector level data recovery software, cluster level data recovery software">
+
+</HEAD>
+<BODY aLink=red bgColor="#bbbbbb" link=blue text=#000000 vLink=green>
+<H1><CENTER>Recover Fixed/Floppy Disk - FAQ</CENTER></H1>
+<CENTER>
+<HR>
+</CENTER>
+<DIV align=center>
+<A 
+href="http://www.geocities.com/systechsoftware/index.html"><B>Home</B></A> || <A href="http://www.geocities.com/systechsoftware/recover/index.html"><B>Recover Fixed/Floppy Disk</B></A> || <A href="http://www.geocities.com/systechsoftware/ngasm/index.html"><B>NGASM 
+8086/8088 Assembler</B></A> || <A 
+href="http://www.geocities.com/systechsoftware/delspecial/index.html"><B>Delete Special</B></A><BR><A 
+href="http://www.geocities.com/systechsoftware/ziprar/index.html"><B>Search Zip Rar</B>
+</A>
+</DIV>
+<CENTER>
+<HR>
+</CENTER>
+
+<A HREF="#Program Specific Experiments"><H3>Program Specific Experiments</H3></A>
+<UL>
+<LI><A HREF="#Experiment1"><B>MANUALLY RECOVERING A FILE</B></A>
+<LI><A HREF="#Experiment2"><B>USING DEBUG TO EXPLORE BOOT, FAT, DIRECTORY SECTORS ON FLOPPY DISKS</B></A>
+<LI><A HREF="#Experiment3"><B>RECOVERING FILES AFTER DELIBERATELY ERASING DIR ENTRIES</B></A>
+</UL>
+<A HREF="#Program Specific Questions"><H3>Program Specific Questions</H3></A>
+
+<A HREF="#General"><H3>General Questions</H3></A>
+<HR>
+<A NAME="Program Specific Experiments"></A><H3>Program Specific Experiments</H3>
+
+<A NAME="Experiment1"><H4>Experiment 1</H4></A>
+<H5>MANUALLY RECOVERING A FILE</H5>
+<H5>SOME QUERIES FIRST:</H5>
+<B>
+<I>What are these numbers under column 2 (the one after the File Name column)?</I></B><BR><BR>
+
+<B>
+<I>I don't understand the hexadecimal numbers under the column 1st LSector?</I></B><BR><BR>
+
+<B>
+<I>What can I do with the hex numbers displayed under the column heading 1st Logical Sector?</I></B><BR><BR>
+
+<B>
+<I>I have only the RECOVRFD.RPT file for a subdirectory on a floppy. Can I do something to get a few of my files?. If yes, can you give me some tips?</I></B><BR><BR>
+
+These hexadecimal numbers are so important that they bring your files close to your heart.<BR><BR>
+
+These hex numbers (under column 2) represent the starting sector numbers of the actual contents of files or directories as the case may be.<BR><BR>
+
+<H5>LET US DO AN EXPERIMENT</H5>
+
+You can access files by using DEBUG.EXE. Run DEBUG.EXE and run the Load command. The Load command syntax is as follows.<BR><BR>
+
+<FONT FACE="Arial, Helvetica, Sans Serif" COLOR="#808000">
+Load <I>[address]&nbsp;&nbsp;&nbsp;[drive]&nbsp;&nbsp;&nbsp;[firstsector]&nbsp;&nbsp;&nbsp;[number]</I>
+</FONT><BR><BR>
+
+<FONT FACE="Arial, Helvetica, Sans Serif" COLOR="#808000"><I>address</I></FONT> is where in memory you want the file contents to be written.<BR><BR>
+
+<FONT FACE="Arial, Helvetica, Sans Serif" COLOR="#808000"><I>drive</I></FONT> is the zero-based drive number. 0 represents the A drive; 1 = B; 2 = C; and so on.<BR><BR>
+
+<FONT FACE="Arial, Helvetica, Sans Serif" COLOR="#808000"><I>firstsector</I></FONT> is the hex number you see under column 1st LSector for the particular file you want to recover manually.<BR><BR>
+
+<FONT FACE="Arial, Helvetica, Sans Serif" COLOR="#808000"><I>number</I></FONT> is the number of sectors you want DEBUG to read from the floppy / hard disk.<BR><BR>
+
+Suppose that you want to get the special AUTOEXEC.BAT from drive A:. Assume further that the details for this file are as follows (as reported in RECOVRFD.RPT):<BR><BR>
+
+<PRE>
+File Name             1st LSector  FAT Sector  #Clusters   #Fragments<BR>
+AUTOEXEC.BAT     -         21           3           2            1 <BR><BR>
+</PRE>
+
+Now you have <FONT FACE="Arial, Helvetica, Sans Serif" COLOR="#808000"><I>drive=0</I></FONT>;<FONT FACE="Arial, Helvetica, Sans Serif" COLOR="#808000"><I>firstsector=21</I></FONT>;<FONT FACE="Arial, Helvetica, Sans Serif" COLOR="#808000"><I>number=2&nbsp;(i.e.&nbsp;number of sectors)</I></FONT>. And <FONT FACE="Arial, Helvetica, Sans Serif" COLOR="#808000"><I>address=100</I></FONT> or as you wish.<BR><BR>
+
+firstsector is available from column "1st LSector". Number of sectors is available from column "#Clusters". In the case of 1.2 MB and 1.44 MB floppies, 1 Cluster = 1 Sector.<BR><BR>
+
+Remember that DEBUG always expects numbers in hex. And, for your convenience, the numbers available from RECOVRFD.RPT are also in hex.<BR><BR>
+
+Now at DEBUG's - prompt type something like the following (without the hyphen) and hit enter:<BR><BR>
+
+<FONT FACE="Arial, Helvetica, Sans Serif" COLOR="#808000">-L100&nbsp;&nbsp;0&nbsp;&nbsp;21&nbsp;&nbsp;2</FONT><BR><BR>
+
+
+Now you can dump what DEBUG has read. Just type the following command (without the hyphen) and hit enter:<BR><BR>
+
+<FONT FACE="Arial, Helvetica, Sans Serif" COLOR="#808000">--D100</FONT><BR><BR>
+
+Now you can see AUTOEXEC.BAT's contents right here in memory from address somesegment&nbsp;<B>:</B>&nbsp;0100<BR><BR>
+
+Now you can ask DEBUG to write this into a file named AUTOEXEC.BAT in C:\TEMP. To do this just type the following commands (without the hyphens and without the comment at the right) at DEBUG's prompt:<BR><BR>
+
+<PRE>
+<FONT FACE="Arial, Helvetica, Sans Serif" COLOR="#808000">
+-NC:\TEMP\AUTOEXEC.BAT</FONT>		Name file as AUTOEXEC.BAT and save in C:
+<FONT FACE="Arial, Helvetica, Sans Serif" COLOR="#808000">
+-RCX</FONT>				Receive file size
+<FONT FACE="Arial, Helvetica, Sans Serif" COLOR="#808000">
+CX 0000</FONT>				Displayed by DEBUG; not typed by you. 
+<FONT FACE="Arial, Helvetica, Sans Serif" COLOR="#808000">
+:400</FONT>				i.e. 2 (#Clusters) * 512 = 1024 bytes = 400h )
+<FONT FACE="Arial, Helvetica, Sans Serif" COLOR="#808000">
+-W100</FONT>				Write from address 100h
+<FONT FACE="Arial, Helvetica, Sans Serif" COLOR="#808000">
+Writing 00400 bytes</FONT>			Disp. by DEBUG. 400h = 100h * 4 = 256 bytes * 4 = 1024 bytes
+<FONT FACE="Arial, Helvetica, Sans Serif" COLOR="#808000">
+-Q</FONT>				Quit (i.e. exit DEBUG)
+</PRE>
+
+Now you have recovered your special AUTOEXEC.BAT and saved it in C:\TEMP.<BR><BR>
+To remove junk at the tail end of file, open it in an editor, remove the junk and save it.<BR><BR>
+
+<HR>
+<A NAME=Experiment2><H4>Experiment 2</H4></A>
+
+<H5>USING DEBUG TO EXPLORE BOOT, FAT, DIRECTORY SECTORS ON FLOPPY DISKS</H5>
+
+Remember DEBUG's command syntax is this:<BR>
+<FONT FACE="Arial, Helvetica, Sans Serif" COLOR="#808000">
+Load <I>[address]&nbsp;&nbsp;&nbsp;[drive]&nbsp;&nbsp;&nbsp;[firstsector]&nbsp;&nbsp;&nbsp;[number]</I>
+</FONT><BR><BR>
+
+<B>Warning!</B><BR><BR>
+<B>Don't change to another floppy while working on one inside DEBUG unless you precisely know what you are doing.</B><BR>
+
+
+<H5>TO READ BOOT CODE</H5>
+Run the following command at DEBUG's hyphen prompt. Drive zero = Drive A:
+
+<FONT FACE="Arial, Helvetica, Sans Serif" COLOR="#808000">
+<PRE>
+-L100  0  0  1
+</PRE>
+</FONT>
+
+<H5>TO READ FAT COPY 1 ON A 1.2 MB FLOPPY DISK</H5>
+Run the following command at DEBUG's hyphen prompt. Drive zero = Drive A:<BR>
+(Recover Fixed/Floppy Disk shows the readability of 7 sectors from 1 thru 7 [FAT Copy 1] for a 1.2 MB floppy).
+
+<FONT FACE="Arial, Helvetica, Sans Serif" COLOR="#808000">
+<PRE>
+-L100  0  1  7
+</PRE>
+</FONT>
+
+<H5>TO READ FAT COPY 2 ON A 1.2 MB FLOPPY DISK</H5>
+Run the following command at DEBUG's hyphen prompt. Drive zero = Drive A:<BR>
+(Recover Fixed/Floppy Disk shows the readability of 7 sectors from 8 thru 0Eh [FAT Copy 2] as well for a 1.2 MB floppy).
+
+<FONT FACE="Arial, Helvetica, Sans Serif" COLOR="#808000">
+<PRE>
+-L100  0  8  7
+</PRE>
+</FONT>
+
+<H5>TO READ FAT COPY 1 ON A 1.44 MB FLOPPY DISK</H5>
+Run the following command at DEBUG's hyphen prompt. Drive zero = Drive A:<BR>
+(Recover Fixed/Floppy Disk shows the readability of 9 sectors from 1 thru 9 [FAT Copy 1] for a 1.44 MB floppy).
+
+<FONT FACE="Arial, Helvetica, Sans Serif" COLOR="#808000">
+<PRE>
+-L100  0  1  9
+</PRE>
+</FONT>
+
+<H5>TO READ FAT COPY 2 ON A 1.44 MB FLOPPY DISK</H5>
+Run the following command at DEBUG's hyphen prompt. Drive zero = Drive A:<BR>
+(Recover Fixed/Floppy Disk shows the readability of 9 sectors from 0Ah thru 12h [FAT Copy 2] as well for a 1.44 MB floppy).
+
+<FONT FACE="Arial, Helvetica, Sans Serif" COLOR="#808000">
+<PRE>
+-L100  0  A  9
+</PRE>
+</FONT>
+
+<H5>TO READ ROOT DIRECTORY (14 SECTORS) ON A 1.2 MB FLOPPY DISK</H5>
+Run the following command at DEBUG's hyphen prompt. Drive zero = Drive A:
+
+<FONT FACE="Arial, Helvetica, Sans Serif" COLOR="#808000">
+<PRE>
+-L100  0  F  E
+</PRE>
+</FONT>
+
+<H5>TO READ ROOT DIRECTORY (14 SECTORS) ON A 1.44 MB FLOPPY DISK</H5>
+Run the following command at DEBUG's hyphen prompt. Drive zero = Drive A:
+
+<FONT FACE="Arial, Helvetica, Sans Serif" COLOR="#808000">
+<PRE>
+-L100  0  13  E
+</PRE>
+</FONT>
+
+<H5>TO READ FIRST DATA SECTOR ON A 1.2 MB FLOPPY DISK</H5>
+Run the following command at DEBUG's hyphen prompt. Drive zero = Drive A:
+
+<FONT FACE="Arial, Helvetica, Sans Serif" COLOR="#808000">
+<PRE>
+-L100  0  1D  1
+</PRE>
+</FONT>
+
+<H5>TO READ FIRST DATA SECTOR ON A 1.44 MB FLOPPY DISK</H5>
+Run the following command at DEBUG's hyphen prompt. Drive zero = Drive A:
+
+<FONT FACE="Arial, Helvetica, Sans Serif" COLOR="#808000">
+<PRE>
+-L100  0  21  1
+</PRE>
+</FONT>
+
+<H5>TO SEE WHAT DEBUG HAS READ</H5>
+Run the following command at DEBUG's hyphen prompt:<BR>
+(You may run this DUMP command after each LOAD command stated above).
+
+<FONT FACE="Arial, Helvetica, Sans Serif" COLOR="#808000">
+<PRE>
+-D
+or
+-D100
+</PRE>
+</FONT>
+
+<HR>
+<A NAME=Experiment3><H4>Experiment 3</H4></A>
+
+<H5>RECOVERING FILES AFTER DELIBERATELY ERASING DIR ENTRIES</H5>
+<UL>
+<LI>1. Get a scratch disk. A fresh floppy is recommended if you are in a hurry.<BR><BR>
+<LI>2. Create a single subdirectory in the root directory and CD to the created subdir.<BR><BR>
+<LI>3. Copy some files into it.<BR><BR>
+<LI>4. Run Recover Fixed/Floppy Disk v1.3 to see if each of the files you just copied into the subdir are contained in one fragment (i.e. one chunk). Otherwise, defrag the disk. If the disk has some errors, the defragmenter won't be able to do its job. If it was the only disk you can find, just delete the files with 2 or more fragments. (But don't delete any file for any reason when actually recovering files from a damaged disk).<BR><BR>
+<LI>5. If too many files have more than one fragment, create another subdirectory in the root dir. And repeat from step 3 above.<BR><BR>
+
+<LI>6. Run Recover Fixed/Floppy Disk v1.3 on the root dir and note down the 1st LSector (starting sector) for the recently created subdirectory possibly with files in single fragments.<BR><BR>
+
+<LI>7. Run Recover Fixed/Floppy Disk v1.3 and save that particular subdirectory's structure in a file. To do that just run the following command:<BR><BR>
+
+RECOVRFD&nbsp;&nbsp;&nbsp;A:\GETME&nbsp;&nbsp;&nbsp;C:\TEMP&nbsp;&nbsp;&nbsp;-D&nbsp;&nbsp;&nbsp;-X&nbsp;&nbsp;&nbsp;&lt;ENTER&gt;<BR><BR>
+
+Here GETME is the subdir's name. Substitute GETME with your subdir's name. This is the subdir you are going to save or backup. C:\TEMP is the destination drive and path that receives the file.<BR><BR>
+
+<LI>8. Run DEBUG. From now on you have to be very careful. If you are an expert, you may skip the rest and jump to step 9 below. For, a single change in a single number on a WRITE command could corrupt a good disk. So be very careful with all the WRITE commands. If you are tense or in a hurry or have been concentrating on some other others-can't-do-it kind of stuff, please take some rest or a nap or just start all over again tomorrow morning before doing anything else and have a great time.<BR><BR>
+
+<LI>9. Type the following command at DEBUG's hyphen (-) prompt. Here 0 is drive 0, that is, drive A:. 0AC1h is the 1st LSector for the GETME subdir on our 1.44 MB floppy. 1 is the number of sectors to read.<BR><BR>
+
+Substitute AC1 with the 1st LSector number you got for your subdirectory.<BR><BR>
+
+-L100&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;AC1&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&lt;ENTER&gt;<BR><BR>
+
+After DEBUG reads the specified sector, run the following command to dump memory offset 100h:<BR><BR>
+
+-D100&nbsp;&nbsp;&nbsp;&lt;ENTER&gt;<BR><BR>
+
+This command only DUMPs 128 bytes. To see all (512 bytes), proceed with more D's (3 of them) like:<BR><BR>
+
+-D&nbsp;&nbsp;&nbsp;&lt;ENTER&gt;<BR><BR>
+-D&nbsp;&nbsp;&nbsp;&lt;ENTER&gt;<BR><BR>
+-D&nbsp;&nbsp;&nbsp;&lt;ENTER&gt;<BR><BR>
+
+Now you have seen what the subdirectory you passed to RECOVRFD.COM contains.<BR><BR>
+
+Now you are going to erase these dir entries. Run the following command to fill the first 512 bytes at memory offset 100h with 0's:<BR><BR>
+
+-F100&nbsp;&nbsp;&nbsp;2FF&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp; &lt;ENTER&gt;<BR><BR>
+
+Now write it to disk in drive A:.<BR><BR>
+
+Be very careful. Don't change the drive number which is 0. You must not have changed disk in between. And remember to substitute AC1 with your subdir's 1st LSector.<BR><BR>
+
+-W100&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;AC1&nbsp;&nbsp;&nbsp;1 &lt;ENTER&gt;<BR><BR>
+
+Now DEBUG writes 0's right upon the directory entries (i.e. sector AC1 on our disk) and erases them.<BR><BR>
+
+Exit from DEBUG by typing<BR><BR>
+
+-Q&nbsp;&nbsp;&nbsp;&lt;ENTER&gt;<BR><BR>
+
+Now run the following command to get the files whose directory entries you just erased:<BR><BR>
+
+RECOVRFD&nbsp;&nbsp;&nbsp;A:&nbsp;&nbsp;&nbsp;C:\TEMP&nbsp;&nbsp;&nbsp;-LC:\TEMP\GETME&nbsp;&nbsp;&nbsp;-X&nbsp;&nbsp;&nbsp; &lt;ENTER&gt;<BR><BR>
+
+<LI>10. If you want to get the erased subdirectory structure back on its place (on our disk: sector AC1) by using the backup, run the following commands (remember AC1 is not AC1 in your case):<BR><BR>
+
+DEBUG&nbsp;&nbsp;&nbsp;C:\TEMP\GETME&nbsp;&nbsp;&nbsp;&lt;ENTER&gt;<BR>
+-W100&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;AC1&nbsp;&nbsp;&nbsp;1 &lt;ENTER&gt;<BR>
+-Q &lt;ENTER&gt;<BR>
+<BR>
+</UL>
+
+<HR>
+<A NAME="Program Specific Questions"></A><H3>Program Specific Questions</H3>
+
+<B><I>When can I get that version of Recover Fixed/Floppy Disk with the capability to "ignore the corrupt/unreadable/zeroed-out FAT copies", the "-I switch"?</I></B><BR><BR>
+
+The "Ignore FATs" switch, the superpower switch -I, will be one of the big features in version 2.0 of Recover Fixed/Floppy Disk. We hope it will be useful to those who happen to deal with accidentally reformatted disks. It will be available at a nominal price compared to its real worth.
+<BR><BR>
+
+<B><I>Can any future version of Recover Fixed/Floppy Disk handle the following: bad sector(s) in directory (root dir or any other) which stops WINDOWS 98 from listing anything when a DIR command is issued?</I></B><BR><BR>
+
+Recover Fixed/Floppy Disk v2.0 will provide a two-step option to handle hole-in-a-directory conditions. It is as simple as saving that directory to a file (DirEntriesFile) and recovering files by passing this DirEntriesFile to Recover Fixed/Floppy Disk in the next invocation. One of the aims of Recover Fixed/Floppy Disk is to make seemingly complex situations easily manageable. The two-step process lets you recover all the files excluding those whose entries are trapped in bad sectors. It is of course a big problem if what was so trapped was a subdirectory. Manually finding the subdirectory and saving its contents to a file for passing it to Recover Fixed/Floppy Disk to recover the files is the only solution. Of course it is difficult to find the exact subdirectory unless names of some files kept in it could be remembered and what is more, everyone may not have a disk utility to view sectors after sectors. A big solution could be a program to automatically find all subdirectories and save them as files for use by Recover Fixed/Floppy Disk. This situation clearly indicates that it should be so arranged that a backup must not have subdirectories at all so as to avoid the subdirectory-trapped situation. An entire directory structure with files (with any number and level of subdirectories) backed up as a ZIP ( or any ) archive seems to be a solution that can handle even sabotage conditions.
+<BR><BR>
+
+<B><I>Recover Fixed/Floppy Disk runs just in the assumption that file contents can be found in contiguous sectors. Can't things be rooted in better theories?</I></B><BR><BR>
+
+If you regularly defrag your drives, then "file contents can be found in contiguous sectors" is as much a reality as your personal computer's capabilities.<BR><BR>
+
+Contiguous files are just a reflection of your high-tech lifestyle. If you have adopted that lifestyle, you are served better than others.<BR><BR>
+
+Recover Fixed/Floppy Disk is invaluable to those who have adopted to the lifestyle of regularly defragmenting their disk drives to safeguard their data. The first step in that direction is defragmenting disk drives - a better defragmenter leaves slack space at the end of each file that will ensure that files don't fragment for sometime, say, until you remember to run the defragmenter the next time. (One must not use just any defragmenter in "power-may-go-off-at-any-time" environments).<BR><BR>
+
+We want everyone in the File Allocation Table world to know that Recover Fixed/Floppy Disk reduces the complexity of recovering data from the data recovery firm level to individually manageable level.<BR><BR>
+
+<B><I>What can be done just with a single directory and saving its structure in a file?</I></B><BR><BR>
+
+Imagination is the limit. With archiving programs, one can roll up an entire drive into a file (say, a ZIP archive, or if you need RAR's capabilities in correcting corrupt data, an RAR archive) and keep the file in a separate partition. Now how many files one can put in a directory can be a relevant question.<BR><BR>
+
+<B><I>Can I know when recovery is Halted exactly?</I></B><BR><BR>
+
+Whether or not a file's contents are contiguous, if the disk has suffered physical damage in a data sector belonging to that file, reading of that sector would fail (because of surface damage). In such cases, the attempt to recover that file would be halted. Hence the remark Halted. Whatever has already been recovered can be found in the partially recovered file. With the file's first sector available from the report (.RPT) file, one can try to access the file manually.<BR><BR>
+
+<B><I>What is the aim of Recover Fixed/Floppy Disk?</I></B><BR><BR>
+
+<B><I>I just don't understand the program. What is the big thing about it?</I></B><BR><BR>
+
+RECOVER Fixed/Floppy Disk foresees a situation where backed-up FAT and Directories could not be restored because of surface damage. So this program is required even by the precautious people who already backup their FAT's and Directories. When the disk was defragmented light years back and unfortunately the backed-up FAT's / Directories could not be restored because of surface damage to disk .... That is why we so much insist on defragmenting your HDD's and Floppies.<BR><BR>
+
+A top class Backup and Restore program that can save and restore critical system areas on disks may seem like an all-in-one solution but what one can do if it cannot Restore the things to the disk sectors where it got them, because of surface damage to disk. Just give the backed-up directory to RECOVER Fixed/Floppy Disk with switch -L (which makes the program look for file and directory entries in the file supplied rather than on the disk), and get back your files.<BR><BR>
+
+By the way, there are situations, even in the case of floppy disks (consider their cost), where no one on earth can help. Recover Fixed/Floppy Disk tries to remove from this planet these "entire world can't help me" kind of situations. The program just asks you to take a few precautions. You will learn in 5 months what others took 5 years to learn. The program is a good starting point to learn the FAT file system. For a start, try to copy USER.DAT and SYSTEM.DAT to some other location from a DOS box while inside Windows. A1 Yippee Shareware conferred a 4-star rating to Recover Fixed/Floppy Disk v1.2a and a 5-star rating to its documentation.<BR><BR>
+
+
+<B><I>If the boot sector on my floppy becomes bad, what can I do?</I></B><BR><BR>
+
+The solution is simple. Just transfer the floppy's contents (excluding the boot sector) to a similar type pre-formatted disk. Programmers can do that. Otherwise, try some disk cloning software. Please wait for version 2.0.<BR><BR>
+
+<HR>
+
+<A NAME="General"></A><H3>General Questions</H3>
+
+<B><I>Where is the boot sector located?</I></B><BR><BR>
+
+It is sector 1 on track 0, side 0 near the outer edge of any disk.<BR><BR>
+
+<B><I>Where are File Allocation Tables located?</I></B><BR><BR>
+
+On floppy disks, the first FAT (File Allocation Table) immediately follows the boot sector. The second FAT follows the first. For example, on a 1.2 MB floppy, FAT copy 1 occupies sectors 2 thru 8 and FAT copy 2 occupies sectors 9 thru 15 both on track 0, side 0. <BR><BR>
+
+<B><I>Where is the root directory located?</I></B><BR><BR>
+
+The root directory is located after the FAT copies. For instance, on a 1.2 MB floppy it starts with sector 1 on track 0, side 1; on a 1.44 MB floppy it starts with sector 2 on track 0, side 1.<BR><BR>
+
+<B><I>What are Head, Track, Cluster and Sector briefly?</I></B><BR><BR>
+
+Head - Read/write head<BR>
+Track - A sub-unit of disk surface<BR>
+Sector - A sub-unit of a Track<BR>
+Cluster - One Sector or a bunch of Sectors<BR><BR>
+
+<B><I>What are Tracks?</I></B><BR><BR>
+
+A track is a circular area of the disk surface. Tracks are circular pathways that end in themselves. Hence the alternate name Cylinders. The read/write heads of the disk drive ski in the air to get to the next sector or track. Tracks are numbered from 0. Track 0 is the first track.<BR><BR>
+
+<B><I>What are Sectors?</I></B><BR><BR>
+
+A sector is a small part of a track. A track gets divided in to a number of sectors. 15 sectors fit into a track on a 1.2 MB floppy. One sector of disk surface usually accommodates 512 bytes. Sectors are numbered from 1.<BR><BR>
+
+
+<B><I>What are Heads or Sides?</I></B><BR><BR>
+
+Heads or Sides are either the actual number of read/write heads (one disk surface [Side] needs one head) or simulated   read/write heads (sides) in the case of large disks. The words head and side are used interchangeably. Heads (sides) are numbered from 0. That is, the first head is head 0.<BR><BR>
+
+<B><I>Can you list the starting sectors for Boot, FAT 1, FAT 2, Root Dir, and Data?</I></B><BR><BR>
+
+The following table lists the Logical Starting Sector numbers for system and data areas for floppies that will be useful when running DEBUG.EXE. All numbers (excl. column 1) are in hex.<BR><BR>
+
+
+<TABLE ALIGN="left" BORDER="0" CELLSPACING="0" CELLPADDING="0" WIDTH="90%">
+<TR ALIGN="left" VALIGN="top" BGCOLOR="#00FFFF"><TH>Disk Type</TH><TH>Boot Sector</TH><TH>FAT 1</TH><TH>FAT 2</TH><TH>Root Dir</TH><TH>Data</TH></TR>
+<TR ALIGN="left" VALIGN="top" BGCOLOR="#00FFFF"><TD>360 KB</TD><TD>0</TD><TD>1</TD><TD>3</TD><TD>5</TD><TD>0Ch</TD></TR>
+<TR ALIGN="left" VALIGN="top" BGCOLOR="#00FFFF"><TD>720 KB</TD><TD>0</TD><TD>1</TD><TD>4</TD><TD>7</TD><TD>0Eh</TD></TR>
+
+<TR ALIGN="left" VALIGN="top" BGCOLOR="#00FFFF"><TD>1.2 MB</TD><TD>0</TD><TD>1</TD><TD>8</TD><TD>0Fh</TD><TD>1Dh</TD></TR>
+<TR ALIGN="left" VALIGN="top" BGCOLOR="#00FFFF"><TD>1.44 MB</TD><TD>0</TD><TD>1</TD><TD>0Ah</TD><TD>13h</TD><TD>21h</TD></TR>
+
+</TABLE>
+
+<BR><BR><BR><BR><BR><BR>
+
+<B><I>What about FAT32?</I></B><BR><BR>
+
+On a FAT32 File System to avoid fragmentation of directories without ever having to defrag the drive, no directory should hold more than 128 (8 sectors * 16 entries per sector) files / dirs. If the entries are long file name entries, it falls to 64 entries at the maximum.
+<BR><BR>
+On a FAT16 File System to avoid fragmentation of directories again without ever having to defrag the drive, no directory, for instance on a 2 GB drive, should hold more than 1024 (64 sectors * 16 entries per sector) files / dirs. Even if there are only long file name entries, one can hardly fill up one (the first one) cluster of directory space under normal usage conditions. This ensures that directories never get fragmented. To that extent defragmentation would take lesser time. Files also get 64 sectors in each cluster allocated to  them. Sectors in a cluster are always contiguous. The more the number of sectors in a cluster (allocation unit), the lesser the files get fragmented. And the defragmenter gets to do a smaller job and completes faster. The lesser the defragmenter takes to defrag a drive, the more the user will use it to get his files and dirs defragmented. The lesser the files are fragmented, the higher the safety and availability of files / dirs. One can think of 100 percent recovery of files from an accidentally reformatted drive which had all the files and dirs defragmented. (Just get RECOVER Fixed/Floppy Disk v2.0 when it becomes available). FAT16 File System is a blessing in disguise for so many of us from programmers to those who never defrag. On a FAT16 File System files don't get fragmented every now and then and directories never get fragmented under normal usage conditions. Defragmentation is faster.<BR><BR>
+
+If one can think that disk space usage optimization is more important than optimization of safety and availability of data, sometimes source code, he/she is really having a great time enjoying life at its best. Programmers really envy that.<BR><BR><BR>
+
+<BR>
+
+<A NAME="version_differences"><B><I>List the differences between Version 1.4 and Version 2.0 of RECOVER Fixed/Floppy Disk.</I></B></A><BR>
+
+<BR><B>Differences between v2.0 and v1.4:</B><BR><BR>
+
+<TABLE ALIGN="left" BORDER="0" CELLSPACING="2" CELLPADDING="5" WIDTH="100%">
+<TR ALIGN="left" VALIGN="top" BGCOLOR="#00FFFF">
+<TH>Sl No</TH>
+<TH>RECOVER Fixed/Floppy Disk V2.0</TH>
+<TH>RECOVER Fixed/Floppy Disk V1.4</TH>
+</TR>
+<TR ALIGN="left" VALIGN="top" BGCOLOR="#00FFFF">
+<TD>1</TD>
+<TD>Can recover files from accidentally reformatted disk if root directory (root folder) or any subdirectory (subfolder) has been backed up and is available outside.</TD>
+<TD>Cannot recover files after accidental reformat.</TD>
+</TR>
+
+<TR ALIGN="left" VALIGN="top" BGCOLOR="#00FFFF">
+<TD>2</TD>
+<TD>If free disk space is available, by creating a new disk partition and copying files to it and then deliberately reformatting it after backing up the root directory (root folder), user can use version 2.0 to train himself  on recovering files without waiting for an accidental reformat to occur.</TD>
+<TD>No such self training is possible as version 1.4 cannot recover files from reformatted disk.</TD>
+</TR>
+
+<TR ALIGN="left" VALIGN="top" BGCOLOR="#00FFFF">
+<TD>3</TD>
+<TD>FAT can be ignored by specifying switch -I.</TD>
+<TD>FAT cannot be ignored by specifying a switch.</TD>
+</TR>
+
+<TR ALIGN="left" VALIGN="top" BGCOLOR="#00FFFF">
+<TD>4</TD>
+<TD>Root Directory or subdirectory can be backed up as a file. For taking out Root Directory, FAT is not needed.</TD>
+<TD>Only subdirectory can be backed up as a file.</TD>
+</TR>
+
+<TR ALIGN="left" VALIGN="top" BGCOLOR="#00FFFF">
+<TD>5</TD>
+<TD>Subdirectory can be backed up as a file without using information in File Allocation Table (for example, when some FAT sectors were physically damaged).</TD>
+<TD>Subdirectory cannot be backed up as a file without using information in File Allocation Table.</TD>
+</TR>
+
+<TR ALIGN="left" VALIGN="top" BGCOLOR="#00FFFF">
+<TD>6</TD>
+<TD>Root Directory or subdirectory backed up as a file has a header. Any directory finder can find the contents of this file and interpret it as a directory despite the header at the top when this file cannot be accessed in the normal way.</TD>
+<TD>Subdirectory backed up as a file has no header. But it can be found by any directory finder.</TD>
+</TR>
+
+<TR LIGN="left" VALIGN="top" BGCOLOR="#00FFFF">
+<TD>7</TD>
+<TD>Boot sector can be supplied by specifying a switch for boot sector damaged floppies of type 360 KB, 720 KB, 1.2 MB and 1.44 MB.</TD>
+<TD>Boot sector cannot be supplied.</TD>
+</TR>
+
+<TR ALIGN="left" VALIGN="top" BGCOLOR="#00FFFF">
+<TD>8</TD>
+<TD>FAT usage can be optimized by specifying a supplementary FAT copy for use if primary FAT copy has bad sectors.</TD>
+<TD>Only one FAT copy can be used at any time.</TD>
+</TR>
+			
+<TR ALIGN="left" VALIGN="top" BGCOLOR="#00FFFF">
+<TD>9</TD>
+<TD>Two types of report files are generated. One when switch -O is specified (without switch -R or -X accompanying) and another one when switch -R or -X is specified.</TD>
+<TD>Only one type of report file is generated. The report file obtained by specifying switch -O (without switch -R or -X accompanying) has to be renamed and preserved for later use by user.</TD>
+</TR>
+
+<TR ALIGN="left" VALIGN="top" BGCOLOR="#00FFFF">
+<TD>10</TD>
+<TD>A new report file which is highly recommended to be obtained before any disk errors occur is named like RFD_?.RPT (? = A or B or C and so on) and is extremely useful as it contains extra details of fragmentation of files in addition to reporting how many fragments a file has.</TD>
+<TD>The report file is always named RECOVRFD.RPT.</TD>
+</TR>
+
+
+<TR ALIGN="left" VALIGN="top" BGCOLOR="#00FFFF">
+<TD>11</TD>
+<TD>If Long File Name support is available, Long File Name format is used when creating files with long filenames unless long filename could not be obtained for unknown reasons.</TD>
+<TD>Short File Name format is used to create files even when Long File Name support is available. User has to rename files to LFN.</TD>
+</TR>
+
+<TR ALIGN="left" VALIGN="top" BGCOLOR="#00FFFF">
+<TD>12</TD>
+<TD>A Directories only listing can be generated using switch -DO. And all lower level subdirectories can be backed up by adding switch -X without touching any files.</TD>
+<TD>Switch -DO is not available.</TD>
+</TR>
+
+<TR ALIGN="left" VALIGN="top" BGCOLOR="#00FFFF">
+<TD>13</TD>
+<TD>Program supplies deleted entries for a dir sector which could not be read.</TD>
+<TD>Deleted entries are not supplied if a dir sector could not be read.</TD>
+</TR>
+
+<TR ALIGN="left" VALIGN="top" BGCOLOR="#00FFFF">
+<TD>14</TD>
+<TD>Even directories with damaged FAT entry chain can be recovered if their contents are contiguous.</TD>
+<TD>Directories with damaged FAT entry chain are not recovered even if their contents are contiguous.</TD>
+</TR>
+
+<TR ALIGN="left" VALIGN="top" BGCOLOR="#00FFFF">
+<TD>15</TD>
+<TD>Elephant with night vision equipment!</TD>
+<TD>Cat!</TD>
+</TR>
+
+</TABLE>
+
+<BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR>
+<BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR>
+
+
+<B><I>Can you give me some tips and tricks?</I></B><BR><BR>
+
+Here are some tips and tricks to guard your data always.<BR><BR>
+<UL>
+<LI>Keep important files in the first level subdirectories. Or just fit everything to your technology. As a general rule, never keep user created files or backup copies of them in directories whose paths are longer than 65 characters each. These directories could not be accessed by both the OS and RECOVER Fixed/Floppy Disk when the system is booted through a WIN 95/98 BOOT DISK. This is the case when the system is booted/rebooted into "command prompt only" mode.
+
+<LI>Never keep files in the root directory. Root directory should have subdirectories only.
+
+<LI>Never reformat a disk giving switch -U unless it is absolutely necessary. And never introduce this switch of FORMAT.COM to new comers.
+</UL> 
+
+<BR>
+
+<HR>
+<DIV align=center>
+<A 
+href="http://www.geocities.com/systechsoftware/index.html"><B>Home</B></A> || <A href="http://www.geocities.com/systechsoftware/recover/index.html"><B>Recover Fixed/Floppy Disk</B></A> || <A href="http://www.geocities.com/systechsoftware/ngasm/index.html"><B>NGASM 
+8086/8088 Assembler</B></A> || <A 
+href="http://www.geocities.com/systechsoftware/delspecial/index.html"><B>Delete Special</B></A><BR><A 
+href="http://www.geocities.com/systechsoftware/ziprar/index.html"><B>Search Zip Rar</B>
+</A>
+</DIV>
+
+<CENTER>
+<HR>
+</CENTER>
+<ADDRESS>
+<FONT face=Arial size=3>
+Systech Software<BR>
+G.Namasivayam<BR>
+G.Gurupandian<BR>
+16, South Veli Street<BR>
+Madurai Pin 625001<BR>
+Tamil Nadu<BR>
+India<BR>
+E-Mail:<A href="mailto:wetryit@mail.com">wetryit@mail.com</A></FONT>
+</ADDRESS>
+<CENTER><IMG SRC="http://visit.geocities.com/counter.gif"></CENTER>
+</BODY>
+</HTML>
+<!-- text below generated by server. PLEASE REMOVE --></object></layer></div></span></style></noscript></table></script></applet>
+<script language="JavaScript">var PUpage="76001067"; var PUprop="geocities"; </script><script language="JavaScript" src="http://www.geocities.com/js_source/pu2geo.js"></script><script language="JavaScript" src="http://us.geocities.com/js_source/ygIELib9.js?v3"></script><script language="JavaScript">var yviContents='http://us.toto.geo.yahoo.com/toto?s=76001067&l=NE&b=1&t=1012951280';yviR='us';yfiEA(0);</script><script language="JavaScript" src="http://us.i1.yimg.com/us.yimg.com/i/mc/mc.js"></script><script language="JavaScript" src="http://us.geocities.com/js_source/geov2.js"></script><script language="javascript">geovisit();</script><noscript><img src="http://visit.geocities.com/visit.gif?1012951280" border=0 width=1 height=1></noscript>
+<IMG SRC="http://geo.yahoo.com/serv?s=76001067&t=1012951280" ALT=1 WIDTH=1 HEIGHT=1>

@@ -1,0 +1,768 @@
+<HTML>
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=koi8-r">
+   <META NAME="Author" CONTENT="Alex Verstak">
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.04 [en] (Win95; I) [Netscape]">
+   <TITLE>Directory Structure</TITLE>
+</HEAD>
+<!--Begin JavaScript roadmap code.  If editing downloaded HTML source, delete
+ this portion.-->
+
+<script language="JavaScript">
+<!--
+
+function TripodShowPopup()
+{
+   var bName=navigator.appName;
+   var bVer=parseInt(navigator.appVersion);
+   var now = new Date();
+   var popupURL = "/adm/popup/roadmap.shtml?"+"member_name=averstak&path=fatdox&client_ip=162.40.24.177&ts=1013203896&ad_type=POPUP&category=net&search_string=how&id=f19d777aa4c0b70ab2ebd09dc64219d4";
+   var popupName = "TripodPopup";
+
+   if (bName=="Netscape" && bVer<=3)
+   {
+      var popup = window.open("", popupName,'toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=0,resizable=0,width=614,height=129');
+   }
+   else
+   {
+      var popup = window.open("", popupName,'toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=0,resizable=0,width=604,height=112');
+   }
+   popup.location = popupURL;
+}
+
+if(window.parent==window)
+{
+   TripodShowPopup();
+}
+
+// -->
+</script>
+
+<script language="JavaScript1.2">
+<!--
+
+function changeOpenFunction()
+{
+   var original_window_open = window.open;
+   function new_open_function(url, name, features, replace)
+   {
+      if(name != "TripodPopup")
+         return original_window_open(url, name, features, replace);
+   }
+   window.open = new_open_function;
+}
+var bName = navigator.appName;
+
+if(bName != "Netscape")
+   changeOpenFunction();
+
+// -->
+</script>
+
+<BODY>
+
+<CENTER>
+<H1>
+Directory Structure</H1></CENTER>
+
+<HR WIDTH="100%">
+<H2>
+Introduction</H2>
+Welcome to hell. This document is devoted to the structure of the special
+type of DOS files called directories.
+
+<P>Each directory consists of a number of fixed-size entries. Each entry
+is 32 bytes long. The number of sectors in the directory is fixed for the
+root directory on FAT12 and FAT16 partitions, and sectors are consecutive
+on disk. For non-root directories, as well as for the root directory on
+the FAT32 partitions, the number of sectors is not fixed, and the directory
+is stored according to the normal cluster chain.
+
+<P>There are two different types of the entries for long filenames and
+for aliases.
+<H2>
+Aliases</H2>
+The entry for an alias is:
+<BR>&nbsp;
+<TABLE BORDER >
+<TR>
+<TD><I>Offset in the Entry</I></TD>
+
+<TD><I>Length in Bytes</I></TD>
+
+<TD><I>Description</I></TD>
+</TR>
+
+<TR>
+<TD><TT>00</TT></TD>
+
+<TD><TT>8</TT></TD>
+
+<TD><TT><A HREF="#fne">Filename</A></TT></TD>
+</TR>
+
+<TR>
+<TD><TT>08</TT></TD>
+
+<TD><TT>3</TT></TD>
+
+<TD><TT><A HREF="#fne">Extension</A></TT></TD>
+</TR>
+
+<TR>
+<TD><TT>0B</TT></TD>
+
+<TD><TT>1</TT></TD>
+
+<TD><TT><A HREF="#atr">Attribute</A></TT></TD>
+</TR>
+
+<TR>
+<TD><TT>0C</TT></TD>
+
+<TD><TT>1</TT></TD>
+
+<TD><TT><A HREF="#cs">Case</A></TT></TD>
+</TR>
+
+<TR>
+<TD><TT>0D</TT></TD>
+
+<TD><TT>1</TT></TD>
+
+<TD><TT>Creation time in ms</TT></TD>
+</TR>
+
+<TR>
+<TD><TT>0E</TT></TD>
+
+<TD><TT>2</TT></TD>
+
+<TD><TT><A HREF="#ts">Creation time</A></TT></TD>
+</TR>
+
+<TR>
+<TD><TT>10</TT></TD>
+
+<TD><TT>2</TT></TD>
+
+<TD><TT><A HREF="#ds">Creation date</A></TT></TD>
+</TR>
+
+<TR>
+<TD><TT>12</TT></TD>
+
+<TD><TT>2</TT></TD>
+
+<TD><TT><A HREF="#ds">Last access date</A></TT></TD>
+</TR>
+
+<TR>
+<TD><TT>14</TT></TD>
+
+<TD><TT>2</TT></TD>
+
+<TD><TT><A HREF="#sc">High word of starting cluster for FAT32</A></TT></TD>
+</TR>
+
+<TR>
+<TD><TT>16</TT></TD>
+
+<TD><TT>2</TT></TD>
+
+<TD><TT><A HREF="#ts">Time stamp</A></TT></TD>
+</TR>
+
+<TR>
+<TD><TT>18</TT></TD>
+
+<TD><TT>2</TT></TD>
+
+<TD><TT><A HREF="#ds">Date stamp</A></TT></TD>
+</TR>
+
+<TR>
+<TD><TT>1A</TT></TD>
+
+<TD><TT>2</TT></TD>
+
+<TD><TT><A HREF="#sc">Starting cluster</A></TT></TD>
+</TR>
+
+<TR>
+<TD><TT>1C</TT></TD>
+
+<TD><TT>4</TT></TD>
+
+<TD><TT><A HREF="#fsz">Size of the file</A></TT></TD>
+</TR>
+</TABLE>
+&nbsp;
+
+<P><A NAME="fne"></A>Filename and extension are left-justified and blank-padded.
+Note that filename cannot consist solely of spaces, but extension can.
+Watch for illegal characters in filenames. My humble suggestion is replacing
+any illegal characters with underscores.
+
+<P>Some characters in the filename have special meaning. If the first character
+has the code <TT>05</TT>, then actually the first character has the code
+<TT>E5</TT> and it is not a special character. If the first character has
+the code <TT>E5</TT>, then the file was deleted. You may save some time
+when going through the directory structure by checking the first character
+in the filename. If it is zero, there are no more entries in current directory.
+
+<P>Two entries have a special meaning. They are present only in subdirectories,
+but not in the root directory. The entry with the name consisting of exactly
+one dot is the pointer to the root directory. Its starting cluster is the
+first cluster of the root directory, which is usually two. You are best
+advised to ignore this value because the location of the root directory
+can be easily calculated otherwise. The entry with the name made up of
+exactly two dots points to the next higher-level directory in the hierarchy.
+Its starting cluster is the first cluster in that directory. These entries
+should be the first and the second one in the directory, correspondingly.
+Their attributes should be <TT>10h</TT> (Directory). They are created at
+the time the subdirectory is created. There are no corresponding long names
+for them.
+
+<P><A NAME="atr"></A>Attribute is a collection of bit flags:
+<BR>&nbsp;
+<TABLE BORDER >
+<TR>
+<TD><I>Value</I></TD>
+
+<TD><I>Meaning</I></TD>
+</TR>
+
+<TR>
+<TD><TT>01</TT></TD>
+
+<TD><TT>Read Only</TT></TD>
+</TR>
+
+<TR>
+<TD><TT>02</TT></TD>
+
+<TD><TT>Hidden</TT></TD>
+</TR>
+
+<TR>
+<TD><TT>04</TT></TD>
+
+<TD><TT>System</TT></TD>
+</TR>
+
+<TR>
+<TD><TT>08</TT></TD>
+
+<TD><TT>Volume Label</TT></TD>
+</TR>
+
+<TR>
+<TD><TT>10</TT></TD>
+
+<TD><TT>Directory</TT></TD>
+</TR>
+
+<TR>
+<TD><TT>20</TT></TD>
+
+<TD><TT>Archive</TT></TD>
+</TR>
+
+<TR>
+<TD><TT>40</TT></TD>
+
+<TD><TT>Unused</TT></TD>
+</TR>
+
+<TR>
+<TD><TT>80</TT></TD>
+
+<TD><TT>Unused</TT></TD>
+</TR>
+</TABLE>
+&nbsp;
+
+<P>Read Only, Hidden, and System are pretty self-explanatory. I will only
+note that neither Hidden nor System files should be moved during defragmentation
+or any other disk service. If you remember, I recommended certain actions
+when file corruption is detected. You are best advised not to try any corrections
+on Hidden or System files. Also, Hidden files should not be returned by
+search commands unless they were explicitly asked to do so.
+
+<P>Volume label attribute means that this entry contains the disk label
+in the filename and extension fields. Volume label is valid only in the
+root directory. Common sense says, there should be only one volume label
+per disk. For the entry to really contain the volume label, the attribute
+should be exactly <TT>08</TT>. <I>If Attribute is equal to </I><TT>0Fh</TT><I>
+(Read Only, Hidden, System, Volume Label) then this entry does not contain
+the alias, but it is used as part of the long filename or long directory
+name.</I>
+
+<P>Directory bit is set if the entry is a subdirectory. In this case the
+starting cluster contains the beginning cluster for the subdirectory, and
+the file size field is ignored (set to zero). Directories can also be Read
+Only, Hidden, System, or Archive. Directory bit is not set for the long
+directory name entries.
+
+<P>Archive bit is somewhat symbolic. It should be set if the file was not
+archived by the backup utility. Never in my life I have seen the use of
+this bit.
+
+<P>Two values are unused, which means that the entries with either of these
+bits set should be considered invalid. Another invalid combination is when
+both, Directory and Volume Label bits are set. Unless you are a disk analyzing
+tool, the best technique is to ignore the entries with the invalid attribute.
+
+<P><A NAME="cs"></A>Case is zero if the filename and extension need to
+be converted to upper case. This field is used only by Windows NT.
+
+<P><A NAME="ts"></A>Time stamp and creation time have the following format:
+<BR>&nbsp;
+<TABLE BORDER >
+<TR>
+<TD><I>Bits</I></TD>
+
+<TD><I>Range</I></TD>
+
+<TD><I>Translated Range</I></TD>
+
+<TD><I>Valid Range</I></TD>
+
+<TD><I>Description</I></TD>
+</TR>
+
+<TR>
+<TD><TT>0..4</TT></TD>
+
+<TD><TT>0..31</TT></TD>
+
+<TD><TT>0..62</TT></TD>
+
+<TD><TT>0..59</TT></TD>
+
+<TD><TT>Seconds/2</TT></TD>
+</TR>
+
+<TR>
+<TD><TT>5..10</TT></TD>
+
+<TD><TT>0..63</TT></TD>
+
+<TD><TT>0..63</TT></TD>
+
+<TD><TT>0..59</TT></TD>
+
+<TD><TT>Minutes</TT></TD>
+</TR>
+
+<TR>
+<TD><TT>11..15</TT></TD>
+
+<TD><TT>0..31</TT></TD>
+
+<TD><TT>0..31</TT></TD>
+
+<TD><TT>0..23</TT></TD>
+
+<TD><TT>Hours</TT></TD>
+</TR>
+</TABLE>
+&nbsp;
+
+<P><A NAME="ds"></A>Date stamp, last accessed date, and creation date have
+the following format:
+<BR>&nbsp;
+<TABLE BORDER >
+<TR>
+<TD><I>Bits</I></TD>
+
+<TD><I>Range</I></TD>
+
+<TD><I>Translated Range</I></TD>
+
+<TD><I>Valid Range</I></TD>
+
+<TD><I>Description</I></TD>
+</TR>
+
+<TR>
+<TD><TT>0..4</TT></TD>
+
+<TD><TT>0..31</TT></TD>
+
+<TD><TT>0..31</TT></TD>
+
+<TD><TT>1..28 up to 1..31</TT></TD>
+
+<TD><TT>Day, blame Julian for complexity</TT></TD>
+</TR>
+
+<TR>
+<TD><TT>5..8</TT></TD>
+
+<TD><TT>0..15</TT></TD>
+
+<TD><TT>0..15</TT></TD>
+
+<TD><TT>1..12</TT></TD>
+
+<TD><TT>Month</TT></TD>
+</TR>
+
+<TR>
+<TD><TT>9..15</TT></TD>
+
+<TD><TT>0..127</TT></TD>
+
+<TD><TT>1980..2107</TT></TD>
+
+<TD><TT>1980..2107</TT></TD>
+
+<TD><TT>Year, add 1980 to convert</TT></TD>
+</TR>
+</TABLE>
+&nbsp;
+
+<P>Generally, creation time and date say when the file was created. Accessed
+time and date say when the file was last modified. Time and date stamps
+are set to the time that applications want you to think is the time of
+the last modification.
+
+<P><A NAME="sc"></A>Starting cluster is the beginning cluster for the file
+or directory cluster chain. For FAT32, this value consists of the two 16-bit
+words, and&nbsp; the high four bits of the high word should be masked out.
+I have never seen any documentation regarding this, but a couple of hours
+of playing with FAT32 convinced me that this is the case.
+
+<P><A NAME="fsz"></A>Size of the file specifies the real file size in bytes.
+This value might be in conflict with the file size calculated by going
+through the cluster chain. Whenever they are in conflict, the smaller value
+takes over.
+<H2>
+Long Filenames</H2>
+The entries for long filenames look pretty odd because Microsoft tried
+to maintain compatibility with the older software. However, their format
+has not changed in FAT32, which sounds somewhat ironic because FAT32 is
+in no way compatible with the older software. You may notice that these
+entries look much similar to those of aliases. The difference is, they
+use the strange combination of attributes, so they are likely to be skipped
+by the older software. The word "slot" was used for these entries by <A HREF="mailto:gchunt@cs.rochester.edu">Galen
+C. Hunt</A>, and I will stay with his terminology.
+<BR>&nbsp;
+<TABLE BORDER >
+<TR>
+<TD><I>Offset in Entry</I></TD>
+
+<TD><I>Length in Bytes</I></TD>
+
+<TD><I>Description</I></TD>
+</TR>
+
+<TR>
+<TD><TT>00</TT></TD>
+
+<TD><TT>1</TT></TD>
+
+<TD><TT>Sequence number for the slot</TT></TD>
+</TR>
+
+<TR>
+<TD><TT>01</TT></TD>
+
+<TD><TT>10d</TT></TD>
+
+<TD><TT>First five characters in filename</TT></TD>
+</TR>
+
+<TR>
+<TD><TT>0B</TT></TD>
+
+<TD><TT>1</TT></TD>
+
+<TD><TT>Attribute</TT></TD>
+</TR>
+
+<TR>
+<TD><TT>0C</TT></TD>
+
+<TD><TT>1</TT></TD>
+
+<TD><TT>Reserved, always zero</TT></TD>
+</TR>
+
+<TR>
+<TD><TT>0D</TT></TD>
+
+<TD><TT>1</TT></TD>
+
+<TD><TT>Alias checksum</TT></TD>
+</TR>
+
+<TR>
+<TD><TT>0E</TT></TD>
+
+<TD><TT>12d</TT></TD>
+
+<TD><TT>Next six characters in filename</TT></TD>
+</TR>
+
+<TR>
+<TD><TT>1A</TT></TD>
+
+<TD><TT>2</TT></TD>
+
+<TD><TT>Starting cluster</TT></TD>
+</TR>
+
+<TR>
+<TD><TT>1C</TT></TD>
+
+<TD><TT>4</TT></TD>
+
+<TD><TT>Last two characters in filename</TT></TD>
+</TR>
+</TABLE>
+&nbsp;
+
+<P>The starting cluster number is always zero, and the attribute is always
+<TT>0Fh</TT>.
+
+<P>Slots are always positioned right before the alias in the directory.
+The closest to the alias slot contains the first thirteen characters of
+the long filename. The slot above it contains the next thirteen characters,
+and so on, up to 256 characters. Additionally, the sequence number of the
+slot contains its number in the slot chain, starting from one. The sequence
+number for the last slot in the chain is or'ed with <TT>40h</TT> to indicate
+end of chain.
+<BR>&nbsp;
+<TABLE BORDER >
+<TR>
+<TD><I>Slot Number</I></TD>
+
+<TD><I>Sequence Number</I></TD>
+
+<TD><I>Characters</I></TD>
+</TR>
+
+<TR>
+<TD><TT>3</TT></TD>
+
+<TD><TT>43h</TT></TD>
+
+<TD><TT>me.text</TT></TD>
+</TR>
+
+<TR>
+<TD><TT>2</TT></TD>
+
+<TD><TT>02</TT></TD>
+
+<TD><TT>y long filena</TT></TD>
+</TR>
+
+<TR>
+<TD><TT>1</TT></TD>
+
+<TD><TT>01</TT></TD>
+
+<TD><TT>This is a ver</TT></TD>
+</TR>
+
+<TR>
+<TD><TT>Alias</TT></TD>
+
+<TD><TT>Alias</TT></TD>
+
+<TD><TT>THISIS~1.TEX</TT></TD>
+</TR>
+</TABLE>
+&nbsp;
+
+<P>If the length of the filename is not the multiple of thirteen, the name
+in null-terminated. Otherwise, it is not null-terminated. If after null
+termination there are any characters left in the slot, they are filled
+with <TT>FFFF</TT>.
+
+<P>Checksum contains the checksum for the corresponding alias. It is calculated
+in the following way:
+<BR><TT>unsigned char sum, i;</TT>
+<BR><TT>for(sum=i=0; i&lt;11; i++)</TT>
+<BR><TT>&nbsp;&nbsp;&nbsp; sum=(((sum&amp;1)&lt;&lt;7)|((sum&amp;0xFE)>>1))+name[i];</TT>
+<BR>In a more common language, they rotate the sum right with cycling and
+add the next character at each iteration. Note that the checksum is case-sensitive.
+
+<P>When the file is deleted, all entries for the long filename start with
+<TT>E5</TT>.
+
+<P>What can go wrong with long filenames? Give some space to your imagination...
+<H2>
+Operations</H2>
+Let us perform some operations with long filenames and aliases. I do not
+describe the steps that are related to cluster chain management because
+they were already described. As for search operations, they should really
+be performed in a different way to be any quick. However, the directory
+structure itself does not suggest anything other than a sequential search.
+<H3>
+Find File by Alias</H3>
+
+<OL>
+<LI>
+Start from the top of the directory.</LI>
+
+<LI>
+Check the first byte of the entry. If it is zero, finish.</LI>
+
+<LI>
+Then check the attribute. Skip the entry if the attribute is invalid, <TT>0F</TT>,
+or does not correspond to the specific search demands.</LI>
+
+<LI>
+Finally, compare the filename and extension with the search pattern. Don't
+forget about wildcards.</LI>
+
+<LI>
+If you have not found the needed entry yet, go to the next entry. Watch
+for the end of the directory. If not end of the directory, go to step two.</LI>
+</OL>
+
+<H3>
+Find File by Long Name</H3>
+
+<OL>
+<LI>
+Start from the top of the directory.</LI>
+
+<LI>
+Check the first byte of the entry. Exit the loop if it is zero. Skip to
+the next entry if it is not one and not <TT>41h</TT>.</LI>
+
+<LI>
+Retrieve the long name. Skip to the next entry in case of an error at this
+stage. Compare the long name against your search string. If you search
+operation has any restrictions for attributes, date, etc. use the fields
+of the corresponding alias for comparison. Skip to the next entry if the
+current one doesn't match.</LI>
+
+<LI>
+If you have not found the needed entry, go to the next one. Watch for end
+of directory.</LI>
+</OL>
+
+<H3>
+Retrieve the Long Name</H3>
+
+<OL>
+<LI>
+Start from the entry with the sequence number one or <TT>41h</TT>. Start
+with an empty string. The string must be at least 512 bytes long. Any error
+in the first entry should be interpreted as an invalid long name. Any error
+in the next entries should end up in the valid but truncated long name.
+Invalid long name is signaled by the empty string on return.</LI>
+
+<LI>
+Check the attribute. It must be <TT>0Fh</TT>.</LI>
+
+<LI>
+If sequence number is one or <TT>41h</TT>, check the next entry in the
+directory. It must be the alias for the long name. Check if its attribute
+is valid. Calculate the checksum.</LI>
+
+<LI>
+Compare the checksum in the slot with the checksum calculated for the alias.
+They must be equal.</LI>
+
+<LI>
+Concatenate the current string and the strings in the slot. Remember that
+strings may be null-terminated. Watch for the invalid characters and replace
+them with underscores.</LI>
+
+<LI>
+If sequence number and <TT>40h</TT>, or the string in the slot is null-terminated,
+or out of buffer space, return your current string.</LI>
+
+<LI>
+Else go to the previous entry in the directory. Watch for the beginning
+of the directory.</LI>
+</OL>
+
+<H3>
+Allocate New Entry</H3>
+When you need to allocate a new entry in the directory, look through the
+entries from the beginning. Use the first one that is marked as deleted
+or the first one that has zero as the first character of the filename.
+Expand the directory if no entries are free. Also follow this simple algorithm
+to allocate the block of consecutive entries. You will need it for aliasing.
+You can make it a bit smarter by overwriting the deleted entries only after
+all free entries are used up, but because the probability that deleted
+files will be recovered is low and memory for the directory cache is expensive,
+I do not recommend it.
+<H3>
+Delete and Undelete File or Directory</H3>
+To delete the file:
+<OL>
+<LI>
+Set the first character of the alias to <TT>E5</TT>.</LI>
+
+<LI>
+Set the first byte for each of the slots for the long name to <TT>E5</TT>.</LI>
+
+<LI>
+Fill the cluster chain with zeroes.</LI>
+</OL>
+To delete the directory, follow these very steps, but first check if the
+directory to be deleted is empty. Empty directory consists of no entries
+but <TT>"."</TT>, <TT>".."</TT>, and, possibly, deleted entries. Do not
+delete the directory unless it is empty.
+
+<P>Because the directory entry is otherwise untouched, recovery is possible.
+However, recovery is not guaranteed. Furthermore, it is not guaranteed
+that the recovered file will have the same contents as the original file.
+To recover the deleted file:
+<OL>
+<LI>
+Find the directory entry marked as deleted. Begin from the starting cluster
+and check the number of the consecutive FAT entries corresponding to the
+file size. If they all are zero, build a file chain through them and conclude
+that undeleting is completed. If any is marked as physically bad, just
+skip it. Otherwise, conclude that undeleting is impossible.</LI>
+
+<LI>
+Ask the user for the first character in the filename, or get the first
+character from the long filename. Write the first character to the directory
+entry (for the alias).</LI>
+
+<LI>
+Read the previous directory entry, if any. If this entry is also marked
+as deleted and its attribute is <TT>0F</TT>, this is probably the first
+slot for the long filename. Continue going up the directory while these
+conditions are true. Build the chain for the long filename.</LI>
+</OL>
+
+<H3>
+Create New Directory</H3>
+
+<OL>
+<LI>
+Allocate the necessary number of entries. You should have enough space
+to store the alias and, possibly, the long filename. The case when the
+long filename is not created was mentioned earlier.</LI>
+
+<LI>
+Allocate at least one cluster. The recommended number of clusters is such
+a number that can contain 512 directory entries.</LI>
+
+<LI>
+Write the first two required entries "." and "..".</LI>
+
+<LI>
+Write the alias and the long filename. Set the beginning cluster field
+of the alias to the just allocated cluster chain.</LI>
+</OL>
+
+<HR WIDTH="100%">
+<BR>Author:&nbsp; <A HREF="mailto:averstak@erols.com">Alex Verstak</A>&nbsp;
+3/10/1998
+<BR>&nbsp;
+</BODY>
+</HTML>
