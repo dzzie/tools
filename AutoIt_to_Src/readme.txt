@@ -1,6 +1,9 @@
 myAut2Exe - The Open Source AutoIT Script Decompiler 2.12
 =========================================================
 
+author:              CW2K@gmx.de
+home page:           http://board.deioncube.in/showthread.php?tid=29
+download mirror:     http://files.planet-dl.org/Cw2k/MyAutToExe/index.html
 
 *New* full support for AutoIT v3.2.6++ :)
 

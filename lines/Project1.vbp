@@ -1,6 +1,8 @@
 Type=Exe
 Reference=*\G{00020430-0000-0000-C000-000000000046}#2.0#0#C:\WINDOWS\system32\stdole2.tlb#OLE Automation
 Module=Module1; Module1.bas
+Module=Con; MConsole.bas
+Class=CFileStream; clsFileStream.cls
 Startup="Sub Main"
 HelpFile=""
 ExeName32="lines.exe"
@@ -35,3 +37,4 @@ AutoRefresh=1
 
 [fastBuild]
 fullPath=%ap%\lines.exe
+PostBuild=LinkConsole.vbs "D:\_code\tools\lines\lines.exe" && copy D:\_code\tools\lines\lines.exe c:\windows\lines.exe

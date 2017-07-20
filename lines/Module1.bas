@@ -1,8 +1,21 @@
 Attribute VB_Name = "Module1"
 
+Private Type OVERLAPPED
+    ternal As Long
+    ternalHigh As Long
+    offset As Long
+    OffsetHigh As Long
+    hEvent As Long
+End Type
+
+Private Declare Function WriteFile Lib "kernel32" (ByVal hFile As Long, lpBuffer As Any, ByVal nNumberOfBytesToWrite As Long, lpNumberOfBytesWritten As Long, lpOverlapped As OVERLAPPED) As Long
+
+
 Sub Main()
     
-    Dim cmd As String, ishex As Boolean
+    Dim cmd As String, ishex As Boolean, tmp
+    Dim fs As New CFileStream
+    Dim sData As String, sMessage As String
     
     cmd = Command
     
@@ -15,8 +28,21 @@ Sub Main()
     cmd = Replace(cmd, """", Empty)
     cmd = Trim(cmd)
     
-    If FileExists(cmd) Then
-        tmp = countOccurances(ReadFile(cmd), vbLf)
+    Con.Initialize
+   
+    If Con.Piped Then
+      sData = Con.ReadStream()
+      tmp = countOccurances(sData, vbLf)
+      msg = "Piped Input"
+    ElseIf FileExists(cmd) Then
+        tmp = 0
+        fs.Open_ cmd 'better for large file support
+        While Not fs.eof
+            fs.ReadLine
+            tmp = tmp + 1
+        Wend
+        fs.Close_
+        'tmp = countOccurances(ReadFile(cmd), vbLf)
         msg = "File"
     Else
         tmp = countOccurances(Clipboard.GetText, vbLf)
@@ -25,15 +51,21 @@ Sub Main()
     
     If ishex Then tmp = "0x" & Hex(tmp)
     
-    MsgBox msg & " contains " & tmp & " lines of text", vbInformation
+    msg = msg & " contains " & tmp & " lines of text"
+    
+    If Len(sData) > 0 Then
+        Con.WriteLine msg 'must switch PE header from GUI to console
+    Else
+        MsgBox msg, vbInformation
+    End If
     
 End Sub
 
 Function countOccurances(x, find) As Long
     On Error Resume Next
     If InStr(x, find) < 1 Then Exit Function
-    x = Split(x, find)
-    countOccurances = UBound(x)
+    y = Split(x, find)
+    countOccurances = UBound(y)
 End Function
 
 Function FileExists(path As String) As Boolean
