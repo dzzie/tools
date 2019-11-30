@@ -32,7 +32,7 @@ Sub Main()
    
     If Con.Piped Then
       sData = Con.ReadStream()
-      tmp = countOccurances(sData, vbLf)
+      tmp = countOccurances(sData, vbLf) + 1
       msg = "Piped Input"
     ElseIf FileExists(cmd) Then
         tmp = 0
@@ -45,7 +45,7 @@ Sub Main()
         'tmp = countOccurances(ReadFile(cmd), vbLf)
         msg = "File"
     Else
-        tmp = countOccurances(Clipboard.GetText, vbLf)
+        tmp = countOccurances(Clipboard.GetText, vbLf) + 1
         msg = "Clipboard"
     End If
     

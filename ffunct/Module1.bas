@@ -19,7 +19,9 @@ Global Together As Boolean         'used in zip & unzip
 Public Sub ListEngine(folderpath)
     Dim files() As String
     
-    If fso.FolderExists(folderpath) Then
+    If fso.FileExists(folderpath) Then
+        push files, folderpath
+    ElseIf fso.FolderExists(folderpath) Then
         'zip the whole folder if conditions right
         If Selopt = 7 And Together Then
             Zip CStr(folderpath)

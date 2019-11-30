@@ -2,4 +2,11 @@
 astrogrep: show file size and progress bar
            for regex of gigantic files let regex do the parsing of file not eol based.
 
+problem: Searchcode.bas - textLine = getLineOfInput(file)
+         it is only designed to search text files with crlf endings...not a real grep
+         a large file with only \n endings = hang..binary file would be bad too
+         and it reads the files one byte at a time...
+         do/while:  textLine = textLine + Input(1, fileNum)
+ 
+
 

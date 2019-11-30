@@ -4,18 +4,18 @@ Begin VB.Form Form1
    ClientHeight    =   1740
    ClientLeft      =   60
    ClientTop       =   315
-   ClientWidth     =   5730
+   ClientWidth     =   8340
    LinkTopic       =   "Form1"
    MaxButton       =   0   'False
    ScaleHeight     =   1740
-   ScaleWidth      =   5730
+   ScaleWidth      =   8340
    StartUpPosition =   2  'CenterScreen
    Begin VB.Frame Frame1 
       Height          =   1065
       Left            =   105
       TabIndex        =   5
       Top             =   0
-      Width           =   4395
+      Width           =   6975
       Begin VB.CheckBox Check1 
          Caption         =   "Recursive"
          BeginProperty Font 
@@ -49,7 +49,7 @@ Begin VB.Form Form1
          Style           =   2  'Dropdown List
          TabIndex        =   7
          Top             =   210
-         Width           =   2640
+         Width           =   5220
       End
       Begin VB.TextBox Text1 
          Height          =   300
@@ -58,7 +58,7 @@ Begin VB.Form Form1
          TabIndex        =   6
          Text            =   "Drop Folder to Process In here"
          Top             =   630
-         Width           =   2655
+         Width           =   5235
       End
       Begin VB.Label Label1 
          AutoSize        =   -1  'True
@@ -90,7 +90,7 @@ Begin VB.Form Form1
          Strikethrough   =   0   'False
       EndProperty
       Height          =   1620
-      Left            =   4620
+      Left            =   7200
       TabIndex        =   4
       Top             =   45
       Width           =   1050
@@ -100,13 +100,13 @@ Begin VB.Form Form1
       Left            =   105
       TabIndex        =   0
       Top             =   1050
-      Width           =   4410
+      Width           =   6930
       Begin VB.CommandButton Command1 
          Caption         =   "Process"
          Height          =   300
-         Left            =   3585
+         Left            =   6000
          TabIndex        =   3
-         Top             =   210
+         Top             =   180
          Width           =   750
       End
       Begin VB.TextBox Text2 
@@ -123,7 +123,7 @@ Begin VB.Form Form1
          Left            =   1095
          TabIndex        =   2
          Top             =   180
-         Width           =   2385
+         Width           =   4725
       End
       Begin VB.Label lblMsg 
          AutoSize        =   -1  'True
@@ -157,6 +157,7 @@ Private Sub Combo1_Click()
 End Sub
 
 Private Sub Form_Load()
+  
   vals = "Clear,->,html,txt,doc,exe,dll,ocx"
   shortcut = Split(vals, ",")
   For i = 0 To UBound(shortcut)
@@ -175,6 +176,7 @@ Private Sub Form_Load()
   
   Combo1.ListIndex = 0
   preprocess 2
+  Text2 = GetSetting("Filefunc", "x", "lst", Text2)
 End Sub
 
 
@@ -195,6 +197,7 @@ End Sub
 
 Private Sub Command1_Click()
  'On Error GoTo warn
+   SaveSetting "Filefunc", "x", "lst", Text2
    If Text1 = Empty Then MsgBox "You must drag and drop the files or folders you want to work with in the large white box :)": Exit Sub
    Select Case Selopt
       Case 6, 7, 13, 17, 16, 18: Call Prompt
@@ -204,6 +207,7 @@ Private Sub Command1_Click()
    Screen.MousePointer = 11
    Call ListEngine(Text1.ToolTipText)
    Screen.MousePointer = 0
+   Me.Caption = "File Functions - complete: " & Now
 Exit Sub
 warn: MsgBox Err.Description
       Screen.MousePointer = 0

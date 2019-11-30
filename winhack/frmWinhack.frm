@@ -19,12 +19,20 @@ Begin VB.Form frmWinHack
    ScaleHeight     =   3045
    ScaleWidth      =   4410
    StartUpPosition =   2  'CenterScreen
+   Begin VB.TextBox lblPath 
+      BackColor       =   &H00FFFFFF&
+      Height          =   315
+      Left            =   60
+      TabIndex        =   28
+      Top             =   2700
+      Width           =   4335
+   End
    Begin VB.TextBox lblCaption 
       BackColor       =   &H80000000&
       BorderStyle     =   0  'None
       Height          =   195
       Left            =   900
-      TabIndex        =   28
+      TabIndex        =   27
       Text            =   "0"
       Top             =   720
       Width           =   2415
@@ -34,7 +42,7 @@ Begin VB.Form frmWinHack
       BorderStyle     =   0  'None
       Height          =   195
       Left            =   900
-      TabIndex        =   27
+      TabIndex        =   26
       Text            =   "0"
       Top             =   960
       Width           =   2415
@@ -205,23 +213,6 @@ Begin VB.Form frmWinHack
       Interval        =   100
       Left            =   4560
       Top             =   2280
-   End
-   Begin VB.Label lblPath 
-      BeginProperty Font 
-         Name            =   "Tahoma"
-         Size            =   9.75
-         Charset         =   0
-         Weight          =   700
-         Underline       =   0   'False
-         Italic          =   0   'False
-         Strikethrough   =   0   'False
-      EndProperty
-      ForeColor       =   &H00C00000&
-      Height          =   2025
-      Left            =   0
-      TabIndex        =   26
-      Top             =   2700
-      Width           =   7995
    End
    Begin VB.Label Label8 
       Appearance      =   0  'Flat
@@ -449,6 +440,7 @@ End Sub
 
 Private Sub Form_Resize()
     On Error Resume Next
+    lblPath.Width = Me.Width
     'If Me.Width < 4410 Then Me.Width = 4410
     'Me.Height = 3030
 End Sub
@@ -485,6 +477,11 @@ End Sub
 
 
  
+
+Private Sub lblPath_DblClick()
+    Clipboard.Clear
+    Clipboard.SetText lblPath.Text
+End Sub
 
 Private Sub txthWnd_Change()
     Dim hwnd As Long
@@ -551,7 +548,7 @@ Private Sub Timer1_Timer()
     picColor.BackColor = pxColor
     txtColor = Hex(pxColor)
    
-    lblPath.Caption = GetProcessPath(hwnd)
+    lblPath = GetProcessPath(hwnd)
      
     'If MagnifierVisible Then frmMagnifier.Magnify pt.x, pt.y
 End Sub

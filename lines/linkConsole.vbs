@@ -16,7 +16,7 @@ Option Explicit
 
 Dim strLINK, strEXE, WSHShell
 
-strLINK = """C:\Program Files\Microsoft Visual Studio\VB98\LINK.EXE"""
+strLINK = """C:\Program Files (x86)\Microsoft Visual Studio\VB98\LINK.EXE"""
 strEXE = """" & WScript.Arguments(0) & """"
 Set WSHShell = CreateObject("WScript.Shell")
 

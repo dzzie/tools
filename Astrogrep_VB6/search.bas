@@ -388,6 +388,7 @@ Sub SearchDirectory(path As String, FileFinder As CFileFinder, _
                 
                 textLine = getLineOfInput(file)
                 LineNum = LineNum + 1
+                If LineNum Mod 40 = 0 Then DoEvents
                 
                 '*******************************************
                 ' See if the our SearchText is in this line.
@@ -551,7 +552,7 @@ Sub SearchDirectory(path As String, FileFinder As CFileFinder, _
 Continue:
         
         FileName = FileFinder.FindNextFile()  ' Get the next directory entry.
-        
+        DoEvents
     Loop
 
     '**************************************************
@@ -625,7 +626,7 @@ Continue:
 
             Call SearchDirectory(path & DirList(i) & "\", FileFinder, _
                 SearchText, Recurse)
-            
+
         Next i
 
     End If
@@ -634,6 +635,7 @@ Continue:
     
 End Sub
 
+'fix me
 Function getLineOfInput(fileNum As Integer)
 
     '**********************
@@ -641,7 +643,7 @@ Function getLineOfInput(fileNum As Integer)
     '**********************
 
     Dim textLine As String
-    Dim lineEnd As String
+    Dim lineEnd As String, i As Long
     textLine = ""
 
     Do
@@ -658,7 +660,14 @@ Function getLineOfInput(fileNum As Integer)
                 textLine = Left$(textLine, Len(textLine) - 1)
             End If
             Exit Do
+            
         End If
+        
+        If i Mod 50 = 0 Then
+            DoEvents
+            i = 0
+        End If
+        i = i + 1
 
     Loop While Not EOF(fileNum)
 

@@ -95,14 +95,26 @@ Function GetSubFolders(folder, Optional retFullPath As Boolean = True) As String
    GetSubFolders = fnames()
 End Function
 
-Public Function FolderExists(path) As Boolean
-  If Dir(path, vbDirectory) <> "" Then FolderExists = True _
-  Else FolderExists = False
+Function FolderExists(ByVal path As String) As Boolean
+  On Error GoTo hell
+  Dim tmp As String
+  tmp = path & "\"
+  If Len(tmp) = 1 Then Exit Function
+  If Dir(tmp, vbDirectory) <> "" Then FolderExists = True
+  Exit Function
+hell:
+    FolderExists = False
 End Function
 
-Public Function FileExists(path) As Boolean
-  If Dir(path, vbHidden Or vbNormal Or vbReadOnly Or vbSystem) <> "" Then FileExists = True _
-  Else FileExists = False
+Function FileExists(ByVal path As String) As Boolean
+  On Error GoTo hell
+    
+  If Len(path) = 0 Then Exit Function
+  If Right(path, 1) = "\" Then Exit Function
+  If Dir(path, vbHidden Or vbNormal Or vbReadOnly Or vbSystem) <> "" Then FileExists = True
+  
+  Exit Function
+hell: FileExists = False
 End Function
 
 Public Function GetParentFolder(path) As String
